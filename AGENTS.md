@@ -57,6 +57,34 @@ lib/
 - Store refresh tokens only in `flutter_secure_storage`; keep access tokens in
   memory. Never log credentials or token values.
 
+## Push Notifications
+
+- FCM integration is Android-only. Keep notification initialization gated to
+  Android; do not add Apple/APNs behavior without completing the native iOS
+  capabilities and Firebase configuration.
+- Firebase Installation ID (FID) is the backend target. Call
+  `FirebaseMessaging.getToken()` to activate FCM, but do not persist or send the
+  registration token to the API. Never log either identifier.
+- `NotificationCoordinator` owns permission, FID registration, token refresh,
+  message listeners, retries, routing, and identity cleanup. Start it from the
+  app/session lifecycle, never from widget `build` methods or feature pages.
+- Register devices only after authentication through `AuthenticatedApiClient`.
+  Explicit logout must use `SessionLogoutCoordinator` so backend unregister
+  happens before auth credentials are cleared. Session loss must disable FCM
+  auto-init and delete the local token and Firebase installation.
+- Foreground visible messages become local notifications. Android displays
+  notification payloads itself while backgrounded or terminated; do not create
+  a second background notification for the same message.
+- Keep Android channel ID `high_importance_channel` aligned with the NestJS
+  payload and manifest metadata. Use a monochrome drawable for status icons.
+- Treat notification data as an untrusted hint. Allowlist routes and actions;
+  retrieve sensitive/current state from authenticated APIs and enforce every
+  action on the backend.
+- Extend notification behavior behind the interfaces in
+  `features/notifications/domain/` and test coordinators with fakes. Cover
+  login, account switching, permission denial, retries, taps, session loss, and
+  logout ordering.
+
 ## Engineering Rules
 
 - Follow `flutter_lints` and Effective Dart.

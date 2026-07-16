@@ -4,7 +4,6 @@ import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/auth/presentation/auth_loading_page.dart';
 import 'package:zhu_app/features/auth/presentation/auth_page.dart';
-import 'package:zhu_app/features/component_workspace/component_workspace_page.dart';
 import 'package:zhu_app/features/permissions/controller/app_permissions_controller.dart';
 import 'package:zhu_app/features/permissions/domain/app_permission_requirement.dart';
 import 'package:zhu_app/features/permissions/presentation/app_permissions_page.dart';

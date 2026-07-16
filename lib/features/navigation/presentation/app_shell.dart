@@ -5,6 +5,7 @@ import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/component_workspace/component_workspace_page.dart';
 import 'package:zhu_app/features/contacts/presentation/contacts_page.dart';
+import 'package:zhu_app/features/notifications/notification_providers.dart';
 import 'package:zhu_app/features/profile/presentation/profile_page.dart';
 
 class AppShell extends ConsumerWidget {
@@ -20,8 +21,7 @@ class AppShell extends ConsumerWidget {
 
     return _AppNavigationScaffold(
       email: email,
-      onSignOut: () =>
-          ref.read(authSessionControllerProvider.notifier).signOut(),
+      onSignOut: () => ref.read(sessionLogoutCoordinatorProvider).signOut(),
     );
   }
 }
