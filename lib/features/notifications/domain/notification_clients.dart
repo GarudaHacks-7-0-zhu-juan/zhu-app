@@ -7,23 +7,15 @@ class NotificationMessage {
 }
 
 abstract interface class PushMessagingClient {
-  Future<void> activate();
+  Future<String> activate();
 
-  Future<void> deactivate();
-
-  Stream<void> get tokenRefreshes;
+  Stream<String> get tokenRefreshes;
 
   Stream<NotificationMessage> get foregroundMessages;
 
   Stream<NotificationMessage> get openedMessages;
 
   Future<NotificationMessage?> getInitialMessage();
-}
-
-abstract interface class InstallationIdSource {
-  Future<String> getId();
-
-  Future<void> delete();
 }
 
 abstract interface class LocalNotificationClient {
@@ -42,7 +34,7 @@ abstract interface class LocalNotificationClient {
 }
 
 abstract interface class PushDeviceClient {
-  Future<void> register(String installationId);
+  Future<void> register(String registrationToken);
 
-  Future<void> unregister(String installationId);
+  Future<void> unregister(String registrationToken);
 }

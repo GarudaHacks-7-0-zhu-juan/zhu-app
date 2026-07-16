@@ -7,16 +7,16 @@ class PushDeviceRepository implements PushDeviceClient {
   final AuthenticatedApiClient _client;
 
   @override
-  Future<void> register(String installationId) {
+  Future<void> register(String registrationToken) {
     return _client.postJson('/push/devices', {
-      'firebaseInstallationId': installationId,
+      'registrationToken': registrationToken,
       'platform': 'android',
     });
   }
 
   @override
-  Future<void> unregister(String installationId) {
-    final encodedId = Uri.encodeComponent(installationId);
-    return _client.delete('/push/devices/$encodedId');
+  Future<void> unregister(String registrationToken) {
+    final encodedToken = Uri.encodeComponent(registrationToken);
+    return _client.delete('/push/devices/$encodedToken');
   }
 }

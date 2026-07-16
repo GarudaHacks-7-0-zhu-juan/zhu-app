@@ -8,14 +8,12 @@ class NotificationCoordinator {
   NotificationCoordinator({
     required bool isAndroid,
     required PushMessagingClient messaging,
-    required InstallationIdSource installations,
     required LocalNotificationClient localNotifications,
     required PushDeviceClient devices,
     required void Function(String route) openRoute,
     Future<void> Function(Duration duration)? delay,
   }) : _isAndroid = isAndroid,
        _messaging = messaging,
-       _installations = installations,
        _localNotifications = localNotifications,
        _devices = devices,
        _openRoute = openRoute,
@@ -25,13 +23,12 @@ class NotificationCoordinator {
 
   final bool _isAndroid;
   final PushMessagingClient _messaging;
-  final InstallationIdSource _installations;
   final LocalNotificationClient _localNotifications;
   final PushDeviceClient _devices;
   final void Function(String route) _openRoute;
   final Future<void> Function(Duration duration) _delay;
 
-  StreamSubscription<void>? _tokenRefreshSubscription;
+  StreamSubscription<String>? _tokenRefreshSubscription;
   StreamSubscription<NotificationMessage>? _foregroundSubscription;
   StreamSubscription<NotificationMessage>? _openedSubscription;
   Future<void> _transition = Future.value();
@@ -116,7 +113,7 @@ class NotificationCoordinator {
       }
 
       _tokenRefreshSubscription = _messaging.tokenRefreshes.listen(
-        (_) => _registerCurrentId(),
+        _registerToken,
       );
       _foregroundSubscription = _messaging.foregroundMessages.listen(
         _showForegroundMessage,
@@ -125,10 +122,10 @@ class NotificationCoordinator {
         _handleOpenedMessage,
       );
 
-      await _messaging.activate();
+      final registrationToken = await _messaging.activate();
       _logInfo('Push messaging activated.');
       if (!_isCurrent(generation)) return;
-      await _registerCurrentId();
+      await _registerToken(registrationToken);
       if (!_isCurrent(generation) || _checkedInitialMessage) return;
       _checkedInitialMessage = true;
       final initialMessage = await _messaging.getInitialMessage();
@@ -143,18 +140,19 @@ class NotificationCoordinator {
 
   bool _isCurrent(int generation) => _active && _generation == generation;
 
-  Future<void> _registerCurrentId() {
+  Future<void> _registerToken(String registrationToken) {
     if (!_active) return Future.value();
-    return _performRegistration(_generation);
+    return _performRegistration(registrationToken, _generation);
   }
 
-  Future<void> _performRegistration(int generation) async {
+  Future<void> _performRegistration(
+    String registrationToken,
+    int generation,
+  ) async {
     for (var attempt = 0; attempt < 3; attempt++) {
       try {
-        final installationId = await _installations.getId();
-        _logInfo('Firebase installation ID obtained.');
         if (!_isCurrent(generation)) return;
-        await _devices.register(installationId);
+        await _devices.register(registrationToken);
         _logInfo('Push device registered.');
         return;
       } catch (error, stackTrace) {
