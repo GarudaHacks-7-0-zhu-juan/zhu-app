@@ -4,7 +4,7 @@ import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/auth/presentation/auth_loading_page.dart';
 import 'package:zhu_app/features/auth/presentation/auth_page.dart';
-import 'package:zhu_app/features/component_workspace/component_workspace_page.dart';
+import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -38,7 +38,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/workspace',
-        builder: (context, state) => const ComponentWorkspacePage(),
+        builder: (context, state) => const AppShell(),
       ),
     ],
   );
