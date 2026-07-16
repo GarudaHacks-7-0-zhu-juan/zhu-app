@@ -23,6 +23,7 @@ class LocalNotificationResponse {
 const livenessCheckEventType = 'LIVENESS_CHECK';
 const highRiskAreaRiskType = 'HIGH_RISK_AREA';
 const livenessCheckYesActionId = 'liveness_check_yes';
+const livenessCheckNoActionId = 'liveness_check_no';
 
 abstract interface class PushMessagingClient {
   Future<String> activate();
@@ -54,7 +55,7 @@ abstract interface class LocalNotificationClient {
 }
 
 abstract interface class LivenessCheckResponseClient {
-  Future<void> respond(String riskType);
+  Future<void> respond(String riskType, {required bool isOkay});
 }
 
 abstract interface class PushDeviceClient {

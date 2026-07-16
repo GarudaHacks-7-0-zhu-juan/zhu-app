@@ -199,6 +199,10 @@ class NotificationCoordinator {
                   id: livenessCheckYesActionId,
                   label: "Yes, I'm safe",
                 ),
+                LocalNotificationAction(
+                  id: livenessCheckNoActionId,
+                  label: "No, I'm not safe",
+                ),
               ]
             : const [],
       );
@@ -213,11 +217,17 @@ class NotificationCoordinator {
   }
 
   Future<void> _handleLocalResponse(LocalNotificationResponse response) async {
-    if (response.actionId == livenessCheckYesActionId) {
+    final isLivenessResponse =
+        response.actionId == livenessCheckYesActionId ||
+        response.actionId == livenessCheckNoActionId;
+    if (isLivenessResponse) {
       final riskType = riskTypeFromPayload(response.payload);
       if (riskType == null) return;
       try {
-        await _livenessResponses.respond(riskType);
+        await _livenessResponses.respond(
+          riskType,
+          isOkay: response.actionId == livenessCheckYesActionId,
+        );
         _logInfo('Liveness check response submitted.');
       } catch (error, stackTrace) {
         _log('Could not submit liveness check response.', error, stackTrace);
