@@ -5,11 +5,19 @@ import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/auth/presentation/auth_loading_page.dart';
 import 'package:zhu_app/features/auth/presentation/auth_page.dart';
 import 'package:zhu_app/features/component_workspace/component_workspace_page.dart';
+import 'package:zhu_app/features/permissions/controller/app_permissions_controller.dart';
+import 'package:zhu_app/features/permissions/domain/app_permission_requirement.dart';
+import 'package:zhu_app/features/permissions/presentation/app_permissions_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: '/loading',
     redirect: (context, route) {
+      final permissionState = ref.read(appPermissionsControllerProvider);
+      if (permissionState.value != AppPermissionRequirement.ready) {
+        return route.matchedLocation == '/permissions' ? null : '/permissions';
+      }
+
       final session = ref.read(authSessionControllerProvider);
       final location = route.matchedLocation;
       final isAuthRoute = location == '/login' || location == '/register';
@@ -24,6 +32,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       };
     },
     routes: [
+      GoRoute(
+        path: '/permissions',
+        builder: (context, state) => const AppPermissionsPage(),
+      ),
       GoRoute(
         path: '/loading',
         builder: (context, state) => const AuthLoadingPage(),
@@ -42,6 +54,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.listen(appPermissionsControllerProvider, (_, _) => router.refresh());
   ref.listen(authSessionControllerProvider, (_, _) => router.refresh());
   ref.onDispose(router.dispose);
   return router;
