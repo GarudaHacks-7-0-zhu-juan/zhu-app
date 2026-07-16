@@ -1,0 +1,16 @@
+
+# FVM SDK cache and generated links
+.fvm/
+
+# Flutter/Dart generated files
+.dart_tool/
+.packages
+.pub-cache/
+build/
+coverage/
+
+# Local Android and IDE files
+android/.gradle/
+android/local.properties
+.idea/
+*.iml
