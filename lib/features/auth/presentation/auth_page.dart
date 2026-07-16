@@ -353,8 +353,8 @@ class _PasswordVisibilityButton extends StatelessWidget {
       button: true,
       label: obscure ? 'Show password' : 'Hide password',
       child: ShadButton.ghost(
-        width: 40,
-        height: 40,
+        width: 20,
+        height: 20,
         padding: EdgeInsets.zero,
         onPressed: enabled ? onPressed : null,
         child: Icon(obscure ? Icons.visibility_off : Icons.visibility),
