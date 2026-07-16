@@ -8,14 +8,12 @@ import 'package:zhu_app/features/notifications/domain/notification_clients.dart'
 void main() {
   group('NotificationCoordinator', () {
     late FakeMessaging messaging;
-    late FakeInstallations installations;
     late FakeLocalNotifications localNotifications;
     late FakeDevices devices;
     late List<String> openedRoutes;
 
     setUp(() {
       messaging = FakeMessaging();
-      installations = FakeInstallations();
       localNotifications = FakeLocalNotifications();
       devices = FakeDevices();
       openedRoutes = [];
@@ -29,7 +27,6 @@ void main() {
       return NotificationCoordinator(
         isAndroid: isAndroid,
         messaging: messaging,
-        installations: installations,
         localNotifications: localNotifications,
         devices: devices,
         openRoute: openedRoutes.add,
@@ -44,7 +41,7 @@ void main() {
 
       expect(localNotifications.initializeCalls, 0);
       expect(messaging.activateCalls, 0);
-      expect(devices.registeredIds, isEmpty);
+      expect(devices.registeredTokens, isEmpty);
     });
 
     test('does nothing on non-Android platforms', () async {
@@ -64,27 +61,26 @@ void main() {
 
       expect(localNotifications.initializeCalls, 1);
       expect(messaging.activateCalls, 0);
-      expect(devices.registeredIds, isEmpty);
+      expect(devices.registeredTokens, isEmpty);
     });
 
-    test('activates and registers installation after authentication', () async {
+    test('activates and registers token after authentication', () async {
       final coordinator = createCoordinator();
 
       await coordinator.syncForSession(authenticated: true);
 
       expect(messaging.activateCalls, 1);
-      expect(devices.registeredIds, ['test-fid']);
+      expect(devices.registeredTokens, ['test-token']);
     });
 
-    test('re-registers current installation after token refresh', () async {
+    test('registers replacement token after refresh', () async {
       final coordinator = createCoordinator();
       await coordinator.syncForSession(authenticated: true);
 
-      messaging.tokenRefreshController.add(null);
+      messaging.tokenRefreshController.add('refreshed-token');
       await pumpEventQueue();
 
-      expect(devices.registeredIds, ['test-fid', 'test-fid']);
-      expect(installations.getIdCalls, 2);
+      expect(devices.registeredTokens, ['test-token', 'refreshed-token']);
     });
 
     test('shows foreground notification on high-level client', () async {
@@ -129,16 +125,14 @@ void main() {
       () async {
         final coordinator = createCoordinator();
         await coordinator.syncForSession(authenticated: true);
-        devices.registeredIds.clear();
+        devices.registeredTokens.clear();
 
         await coordinator.syncForSession(authenticated: false);
-        messaging.tokenRefreshController.add(null);
+        messaging.tokenRefreshController.add('ignored-token');
         await pumpEventQueue();
 
-        expect(devices.registeredIds, isEmpty);
-        expect(devices.unregisteredIds, isEmpty);
-        expect(messaging.deactivateCalls, 0);
-        expect(installations.deleteCalls, 0);
+        expect(devices.registeredTokens, isEmpty);
+        expect(devices.unregisteredTokens, isEmpty);
         expect(localNotifications.cancelAllCalls, 0);
       },
     );
@@ -152,10 +146,8 @@ void main() {
       await Future.wait([signedOut, signedBackIn]);
 
       expect(localNotifications.cancelAllCalls, 0);
-      expect(messaging.deactivateCalls, 0);
-      expect(installations.deleteCalls, 0);
       expect(messaging.activateCalls, 2);
-      expect(devices.registeredIds, ['test-fid', 'test-fid']);
+      expect(devices.registeredTokens, ['test-token', 'test-token']);
     });
 
     test('retries registration after a temporary failure', () async {
@@ -165,7 +157,7 @@ void main() {
       await coordinator.syncForSession(authenticated: true);
 
       expect(devices.registerAttempts, 2);
-      expect(devices.registeredIds, ['test-fid']);
+      expect(devices.registeredTokens, ['test-token']);
     });
 
     test(
@@ -178,7 +170,7 @@ void main() {
         await coordinator.syncForSession(authenticated: true);
 
         expect(devices.registerAttempts, 4);
-        expect(devices.registeredIds, ['test-fid']);
+        expect(devices.registeredTokens, ['test-token']);
       },
     );
 
@@ -186,7 +178,6 @@ void main() {
       final events = <String>[];
       devices.events = events;
       messaging.events = events;
-      installations.events = events;
       localNotifications.events = events;
       final coordinator = createCoordinator();
       await coordinator.syncForSession(authenticated: true);
@@ -199,9 +190,7 @@ void main() {
       await logout.signOut();
 
       expect(events, ['auth-sign-out']);
-      expect(devices.unregisteredIds, isEmpty);
-      expect(messaging.deactivateCalls, 0);
-      expect(installations.deleteCalls, 0);
+      expect(devices.unregisteredTokens, isEmpty);
       expect(localNotifications.cancelAllCalls, 0);
     });
 
@@ -212,7 +201,7 @@ void main() {
       devices
         ..events = events
         ..registerCompleter = Completer<void>();
-      messaging.tokenRefreshController.add(null);
+      messaging.tokenRefreshController.add('refreshed-token');
       await pumpEventQueue();
       final logout = SessionLogoutCoordinator(
         notifications: coordinator,
@@ -222,35 +211,32 @@ void main() {
       await logout.signOut();
 
       expect(events, ['register-start', 'auth-sign-out']);
-      expect(devices.unregisteredIds, isEmpty);
+      expect(devices.unregisteredTokens, isEmpty);
 
       devices.registerCompleter!.complete();
       await pumpEventQueue();
       expect(events, ['register-start', 'auth-sign-out', 'register-end']);
     });
 
-    test(
-      'logout does not create an installation only to unregister it',
-      () async {
-        final coordinator = createCoordinator();
-        var authSignedOut = false;
-        final logout = SessionLogoutCoordinator(
-          notifications: coordinator,
-          authSignOut: () async => authSignedOut = true,
-        );
+    test('logout does not request a token only to unregister it', () async {
+      final coordinator = createCoordinator();
+      var authSignedOut = false;
+      final logout = SessionLogoutCoordinator(
+        notifications: coordinator,
+        authSignOut: () async => authSignedOut = true,
+      );
 
-        await logout.signOut();
+      await logout.signOut();
 
-        expect(authSignedOut, isTrue);
-        expect(installations.getIdCalls, 0);
-        expect(devices.unregisteredIds, isEmpty);
-      },
-    );
+      expect(authSignedOut, isTrue);
+      expect(messaging.activateCalls, 0);
+      expect(devices.unregisteredTokens, isEmpty);
+    });
   });
 }
 
 class FakeMessaging implements PushMessagingClient {
-  final tokenRefreshController = StreamController<void>.broadcast(sync: true);
+  final tokenRefreshController = StreamController<String>.broadcast(sync: true);
   final foregroundController = StreamController<NotificationMessage>.broadcast(
     sync: true,
   );
@@ -259,19 +245,13 @@ class FakeMessaging implements PushMessagingClient {
   );
 
   int activateCalls = 0;
-  int deactivateCalls = 0;
   List<String>? events;
   NotificationMessage? initialMessage;
 
   @override
-  Future<void> activate() async {
+  Future<String> activate() async {
     activateCalls++;
-  }
-
-  @override
-  Future<void> deactivate() async {
-    deactivateCalls++;
-    events?.add('deactivate');
+    return 'test-token';
   }
 
   @override
@@ -285,32 +265,12 @@ class FakeMessaging implements PushMessagingClient {
   Stream<NotificationMessage> get openedMessages => openedController.stream;
 
   @override
-  Stream<void> get tokenRefreshes => tokenRefreshController.stream;
+  Stream<String> get tokenRefreshes => tokenRefreshController.stream;
 
   Future<void> dispose() async {
     await tokenRefreshController.close();
     await foregroundController.close();
     await openedController.close();
-  }
-}
-
-class FakeInstallations implements InstallationIdSource {
-  int getIdCalls = 0;
-  int deleteCalls = 0;
-  List<String>? events;
-  Completer<void>? deleteCompleter;
-
-  @override
-  Future<void> delete() async {
-    deleteCalls++;
-    events?.add('delete-installation');
-    await deleteCompleter?.future;
-  }
-
-  @override
-  Future<String> getId() async {
-    getIdCalls++;
-    return 'test-fid';
   }
 }
 
@@ -353,8 +313,8 @@ class FakeLocalNotifications implements LocalNotificationClient {
 }
 
 class FakeDevices implements PushDeviceClient {
-  final registeredIds = <String>[];
-  final unregisteredIds = <String>[];
+  final registeredTokens = <String>[];
+  final unregisteredTokens = <String>[];
   List<String>? events;
   Completer<void>? registerCompleter;
   Completer<void>? unregisterCompleter;
@@ -362,7 +322,7 @@ class FakeDevices implements PushDeviceClient {
   int registerFailuresRemaining = 0;
 
   @override
-  Future<void> register(String installationId) async {
+  Future<void> register(String registrationToken) async {
     registerAttempts++;
     if (registerFailuresRemaining > 0) {
       registerFailuresRemaining--;
@@ -373,12 +333,12 @@ class FakeDevices implements PushDeviceClient {
       await registerCompleter!.future;
       events?.add('register-end');
     }
-    registeredIds.add(installationId);
+    registeredTokens.add(registrationToken);
   }
 
   @override
-  Future<void> unregister(String installationId) async {
-    unregisteredIds.add(installationId);
+  Future<void> unregister(String registrationToken) async {
+    unregisteredTokens.add(registrationToken);
     events?.add('unregister');
     await unregisterCompleter?.future;
   }

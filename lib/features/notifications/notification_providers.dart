@@ -15,10 +15,6 @@ final pushMessagingClientProvider = Provider<PushMessagingClient>(
   (ref) => FirebasePushMessagingClient(),
 );
 
-final installationIdSourceProvider = Provider<InstallationIdSource>(
-  (ref) => AndroidFirebaseInstallationIdSource(),
-);
-
 final localNotificationClientProvider = Provider<LocalNotificationClient>(
   (ref) => AndroidLocalNotificationClient(),
 );
@@ -31,7 +27,6 @@ final notificationCoordinatorProvider = Provider<NotificationCoordinator>(
   (ref) => NotificationCoordinator(
     isAndroid: !kIsWeb && defaultTargetPlatform == TargetPlatform.android,
     messaging: ref.watch(pushMessagingClientProvider),
-    installations: ref.watch(installationIdSourceProvider),
     localNotifications: ref.watch(localNotificationClientProvider),
     devices: ref.watch(pushDeviceClientProvider),
     openRoute: ref.watch(appRouterProvider).go,

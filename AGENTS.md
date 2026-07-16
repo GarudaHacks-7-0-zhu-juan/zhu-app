@@ -62,19 +62,15 @@ lib/
 - FCM integration is Android-only. Keep notification initialization gated to
   Android; do not add Apple/APNs behavior without completing the native iOS
   capabilities and Firebase configuration.
-- Firebase Installation ID (FID) is the backend target. Call
-  `FirebaseMessaging.getToken()` to activate FCM, but do not persist or send the
-  registration token to the API. Never log either identifier.
-- Access Android Firebase Installations through
-  `AndroidFirebaseInstallationIdSource` and its native method channel. Do not
-  re-add `firebase_app_installations` without verifying its FID listener runs on
-  the Android main thread.
-- `NotificationCoordinator` owns permission, FID registration, token refresh,
+- FCM registration tokens are the backend target for hackathon reliability.
+  Obtain the initial token with `FirebaseMessaging.getToken()`, update it from
+  `onTokenRefresh`, and never log token values.
+- `NotificationCoordinator` owns permission, token registration and refresh,
   message listeners, retries, and routing. Start it from the app/session
   lifecycle, never from widget `build` methods or feature pages.
 - Register devices only after authentication through `AuthenticatedApiClient`.
-  Keep the FID and FCM activation across logout for the hackathon demo; the
-  backend upsert transfers that installation on the next authenticated login.
+  Keep FCM activation across logout for the hackathon demo; the backend upsert
+  transfers the current token on the next authenticated login.
   Logout must stop message listeners without waiting for push I/O.
 - Foreground visible messages become local notifications. Android displays
   notification payloads itself while backgrounded or terminated; do not create

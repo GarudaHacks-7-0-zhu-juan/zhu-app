@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zhu_app/features/notifications/domain/notification_clients.dart';
 
@@ -17,20 +16,17 @@ class FirebasePushMessagingClient implements PushMessagingClient {
       _injectedMessaging ?? FirebaseMessaging.instance;
 
   @override
-  Future<void> activate() async {
+  Future<String> activate() async {
     await _messaging.setAutoInitEnabled(true);
-    await _messaging.getToken();
+    final registrationToken = await _messaging.getToken();
+    if (registrationToken == null || registrationToken.isEmpty) {
+      throw StateError('FCM registration token is unavailable.');
+    }
+    return registrationToken;
   }
 
   @override
-  Future<void> deactivate() async {
-    await _messaging.setAutoInitEnabled(false);
-    await _messaging.deleteToken();
-  }
-
-  @override
-  Stream<void> get tokenRefreshes =>
-      _messaging.onTokenRefresh.map<void>((_) {});
+  Stream<String> get tokenRefreshes => _messaging.onTokenRefresh;
 
   @override
   Stream<NotificationMessage> get foregroundMessages =>
@@ -53,28 +49,6 @@ class FirebasePushMessagingClient implements PushMessagingClient {
       body: message.notification?.body,
     );
   }
-}
-
-class AndroidFirebaseInstallationIdSource implements InstallationIdSource {
-  AndroidFirebaseInstallationIdSource([
-    MethodChannel channel = const MethodChannel(
-      'com.zhujuan.zhu_app/firebase_installations',
-    ),
-  ]) : _channel = channel;
-
-  final MethodChannel _channel;
-
-  @override
-  Future<String> getId() async {
-    final installationId = await _channel.invokeMethod<String>('getId');
-    if (installationId == null || installationId.isEmpty) {
-      throw StateError('Firebase installation ID is unavailable.');
-    }
-    return installationId;
-  }
-
-  @override
-  Future<void> delete() => _channel.invokeMethod<void>('delete');
 }
 
 class AndroidLocalNotificationClient implements LocalNotificationClient {
