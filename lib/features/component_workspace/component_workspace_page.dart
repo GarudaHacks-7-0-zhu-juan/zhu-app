@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:zhu_app/design_system/tokens/app_colors.dart';
 import 'package:zhu_app/design_system/tokens/app_spacing.dart';
 import 'package:zhu_app/design_system/theme/app_shad_theme.dart';
-import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
-import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 
 class ComponentWorkspacePage extends StatefulWidget {
   const ComponentWorkspacePage({super.key});
@@ -20,71 +17,54 @@ class _ComponentWorkspacePageState extends State<ComponentWorkspacePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    final colors = theme.colorScheme;
-
-    return Scaffold(
-      backgroundColor: colors.background,
-      body: SafeArea(
-        child: ListView(
-          padding: AppSpacing.screen.copyWith(
-            top: AppSpacing.lg,
-            bottom: AppSpacing.xxxl,
-          ),
-          children: [
-            _WorkspaceHeader(),
-            const SizedBox(height: AppSpacing.xl),
-            _AssemblyCard(
-              markerCount: _markerCount,
-              showAnnotations: _showAnnotations,
-              onAddMarker: () => setState(() => _markerCount++),
-              onToggleAnnotations: (value) =>
-                  setState(() => _showAnnotations = value),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-            _SectionHeading(
-              eyebrow: 'FOUNDATION',
-              title: 'Component states',
-              description: 'Core controls share one measured visual language.',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _ControlsCard(),
-            const SizedBox(height: AppSpacing.xxl),
-            _SectionHeading(
-              eyebrow: 'FEEDBACK',
-              title: 'System states',
-              description: 'Clear next steps without decorative noise.',
-            ),
-            const SizedBox(height: AppSpacing.md),
-            _StatesCard(),
-          ],
+    return SafeArea(
+      child: ListView(
+        padding: AppSpacing.screen.copyWith(
+          top: AppSpacing.lg,
+          bottom: AppSpacing.xxxl,
         ),
+        children: [
+          const _WorkspaceHeader(),
+          const SizedBox(height: AppSpacing.xl),
+          _AssemblyCard(
+            markerCount: _markerCount,
+            showAnnotations: _showAnnotations,
+            onAddMarker: () => setState(() => _markerCount++),
+            onToggleAnnotations: (value) =>
+                setState(() => _showAnnotations = value),
+          ),
+          const SizedBox(height: AppSpacing.xxl),
+          const _SectionHeading(
+            eyebrow: 'FOUNDATION',
+            title: 'Component states',
+            description: 'Core controls share one measured visual language.',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          const _ControlsCard(),
+          const SizedBox(height: AppSpacing.xxl),
+          const _SectionHeading(
+            eyebrow: 'FEEDBACK',
+            title: 'System states',
+            description: 'Clear next steps without decorative noise.',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          const _StatesCard(),
+        ],
       ),
     );
   }
 }
 
-class _WorkspaceHeader extends ConsumerWidget {
+class _WorkspaceHeader extends StatelessWidget {
   const _WorkspaceHeader();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = ShadTheme.of(context);
-    final session = ref.watch(authSessionControllerProvider);
-    final email = switch (session) {
-      AuthenticatedAuthSessionState(:final user) => user.email,
-      _ => '',
-    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text('ZHU / UI LAB', style: theme.textTheme.technical),
-            const Spacer(),
-            _AccountMenu(email: email),
-          ],
-        ),
+        Row(children: [Text('ZHU / UI LAB', style: theme.textTheme.technical)]),
         const SizedBox(height: AppSpacing.md),
         Text('Schematic workspace', style: theme.textTheme.h1),
         const SizedBox(height: AppSpacing.sm),
@@ -98,74 +78,6 @@ class _WorkspaceHeader extends ConsumerWidget {
         const _DimensionRule(label: 'MOBILE / LIGHT / 01'),
       ],
     );
-  }
-}
-
-class _AccountMenu extends ConsumerStatefulWidget {
-  const _AccountMenu({required this.email});
-
-  final String email;
-
-  @override
-  ConsumerState<_AccountMenu> createState() => _AccountMenuState();
-}
-
-class _AccountMenuState extends ConsumerState<_AccountMenu> {
-  final _popoverController = ShadPopoverController();
-  bool _isSigningOut = false;
-
-  @override
-  void dispose() {
-    _popoverController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = ShadTheme.of(context);
-    return ShadPopover(
-      controller: _popoverController,
-      child: Semantics(
-        button: true,
-        label: 'Account menu',
-        child: ShadButton.ghost(
-          width: 44,
-          height: 44,
-          padding: EdgeInsets.zero,
-          onPressed: _popoverController.toggle,
-          child: const Icon(Icons.account_circle_outlined),
-        ),
-      ),
-      popover: (context) => SizedBox(
-        width: 240,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('SIGNED IN AS', style: theme.textTheme.technical),
-            const SizedBox(height: AppSpacing.xs),
-            Text(widget.email, style: theme.textTheme.small),
-            const SizedBox(height: AppSpacing.md),
-            ShadButton.outline(
-              onPressed: _isSigningOut ? null : _signOut,
-              child: _isSigningOut
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Sign out'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _signOut() async {
-    setState(() => _isSigningOut = true);
-    _popoverController.hide();
-    await ref.read(authSessionControllerProvider.notifier).signOut();
-    if (mounted) setState(() => _isSigningOut = false);
   }
 }
 

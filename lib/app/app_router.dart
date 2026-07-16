@@ -8,6 +8,7 @@ import 'package:zhu_app/features/component_workspace/component_workspace_page.da
 import 'package:zhu_app/features/permissions/controller/app_permissions_controller.dart';
 import 'package:zhu_app/features/permissions/domain/app_permission_requirement.dart';
 import 'package:zhu_app/features/permissions/presentation/app_permissions_page.dart';
+import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -50,7 +51,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/workspace',
-        builder: (context, state) => const ComponentWorkspacePage(),
+        builder: (context, state) => const AppShell(),
       ),
     ],
   );
