@@ -4,5 +4,7 @@ enum AppPermissionRequirement {
   notificationPermanentlyDenied,
   locationDenied,
   locationPermanentlyDenied,
+  backgroundLocationDenied,
+  backgroundLocationPermanentlyDenied,
   locationServicesDisabled,
 }

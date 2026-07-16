@@ -62,6 +62,19 @@ class AppPermissionsController extends _$AppPermissionsController {
       return AppPermissionRequirement.locationDenied;
     }
 
+    if (gateway.requiresBackgroundLocationPermission) {
+      var backgroundLocationStatus = await gateway.backgroundLocationStatus();
+      if (!backgroundLocationStatus.isGranted) {
+        backgroundLocationStatus = await gateway
+            .requestBackgroundLocationPermission();
+      }
+      if (!backgroundLocationStatus.isGranted) {
+        return backgroundLocationStatus.isPermanentlyDenied
+            ? AppPermissionRequirement.backgroundLocationPermanentlyDenied
+            : AppPermissionRequirement.backgroundLocationDenied;
+      }
+    }
+
     if (!await gateway.isLocationServiceEnabled()) {
       return AppPermissionRequirement.locationServicesDisabled;
     }

@@ -38,7 +38,7 @@ final class AppPermissionsControllerProvider
 }
 
 String _$appPermissionsControllerHash() =>
-    r'9b67e64e75ced0434b338f35e4d4887e4d60de58';
+    r'966a18f71a10cd6415c6ab2ba3b0a515dec083c9';
 
 abstract class _$AppPermissionsController
     extends $AsyncNotifier<AppPermissionRequirement> {

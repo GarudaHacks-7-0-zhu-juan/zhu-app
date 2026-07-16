@@ -9,6 +9,7 @@ import 'package:zhu_app/core/diagnostics/app_logarte.dart';
 import 'package:zhu_app/design_system/theme/app_shad_theme.dart';
 import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
+import 'package:zhu_app/features/locations/location_providers.dart';
 import 'package:zhu_app/features/notifications/notification_providers.dart';
 import 'package:zhu_app/features/permissions/controller/app_permissions_controller.dart';
 
@@ -26,6 +27,7 @@ class _MainAppState extends ConsumerState<MainApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    ref.read(locationLifecycleProvider);
     ref.read(notificationLifecycleProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
