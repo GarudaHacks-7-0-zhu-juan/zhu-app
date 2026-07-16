@@ -276,12 +276,18 @@ class NotificationCoordinator {
 class SessionLogoutCoordinator {
   const SessionLogoutCoordinator({
     required NotificationCoordinator notifications,
+    required Future<void> Function() stopLocationTracking,
     required Future<void> Function() authSignOut,
   }) : _notifications = notifications,
+       _stopLocationTracking = stopLocationTracking,
        _authSignOut = authSignOut;
 
   final NotificationCoordinator _notifications;
+  final Future<void> Function() _stopLocationTracking;
   final Future<void> Function() _authSignOut;
 
-  Future<void> signOut() => _notifications.signOut(_authSignOut);
+  Future<void> signOut() async {
+    await _stopLocationTracking();
+    await _notifications.signOut(_authSignOut);
+  }
 }

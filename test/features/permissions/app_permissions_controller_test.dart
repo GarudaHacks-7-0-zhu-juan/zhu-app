@@ -72,6 +72,25 @@ void main() {
 
     expect(result, AppPermissionRequirement.locationServicesDisabled);
   });
+
+  test('requires background location access on Android', () async {
+    final gateway = FakeAppPermissionsGateway(
+      notification: PermissionStatus.granted,
+      location: LocationPermission.whileInUse,
+      requiresBackgroundLocation: true,
+      backgroundLocation: PermissionStatus.denied,
+      requestedBackgroundLocation: PermissionStatus.granted,
+    );
+    final container = _createContainer(gateway);
+    addTearDown(container.dispose);
+
+    final result = await container.read(
+      appPermissionsControllerProvider.future,
+    );
+
+    expect(result, AppPermissionRequirement.ready);
+    expect(gateway.backgroundLocationRequestCount, 1);
+  });
 }
 
 ProviderContainer _createContainer(FakeAppPermissionsGateway gateway) {
@@ -87,6 +106,9 @@ class FakeAppPermissionsGateway extends AppPermissionsGateway {
     this.location = LocationPermission.denied,
     this.requestedLocation,
     this.locationServiceEnabled = true,
+    this.requiresBackgroundLocation = false,
+    this.backgroundLocation = PermissionStatus.denied,
+    this.requestedBackgroundLocation,
   });
 
   PermissionStatus notification;
@@ -94,8 +116,15 @@ class FakeAppPermissionsGateway extends AppPermissionsGateway {
   LocationPermission location;
   LocationPermission? requestedLocation;
   bool locationServiceEnabled;
+  bool requiresBackgroundLocation;
+  PermissionStatus backgroundLocation;
+  PermissionStatus? requestedBackgroundLocation;
   int notificationRequestCount = 0;
   int locationRequestCount = 0;
+  int backgroundLocationRequestCount = 0;
+
+  @override
+  bool get requiresBackgroundLocationPermission => requiresBackgroundLocation;
 
   @override
   Future<PermissionStatus> notificationStatus() async => notification;
@@ -113,6 +142,16 @@ class FakeAppPermissionsGateway extends AppPermissionsGateway {
   Future<LocationPermission> requestLocationPermission() async {
     locationRequestCount++;
     return requestedLocation ?? location;
+  }
+
+  @override
+  Future<PermissionStatus> backgroundLocationStatus() async =>
+      backgroundLocation;
+
+  @override
+  Future<PermissionStatus> requestBackgroundLocationPermission() async {
+    backgroundLocationRequestCount++;
+    return requestedBackgroundLocation ?? backgroundLocation;
   }
 
   @override

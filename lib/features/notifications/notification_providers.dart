@@ -6,6 +6,7 @@ import 'package:zhu_app/app/app_router.dart';
 import 'package:zhu_app/features/auth/auth_providers.dart';
 import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
+import 'package:zhu_app/features/locations/location_providers.dart';
 import 'package:zhu_app/features/notifications/controller/notification_coordinator.dart';
 import 'package:zhu_app/features/notifications/data/firebase_notification_clients.dart';
 import 'package:zhu_app/features/notifications/data/liveness_check_response_repository.dart';
@@ -58,6 +59,7 @@ final notificationLifecycleProvider = Provider<void>((ref) {
 final sessionLogoutCoordinatorProvider = Provider<SessionLogoutCoordinator>(
   (ref) => SessionLogoutCoordinator(
     notifications: ref.watch(notificationCoordinatorProvider),
+    stopLocationTracking: ref.watch(locationPollingCoordinatorProvider).stop,
     authSignOut: ref.read(authSessionControllerProvider.notifier).signOut,
   ),
 );

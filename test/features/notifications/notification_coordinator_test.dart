@@ -233,6 +233,7 @@ void main() {
       events.clear();
       final logout = SessionLogoutCoordinator(
         notifications: coordinator,
+        stopLocationTracking: () async {},
         authSignOut: () async => events.add('auth-sign-out'),
       );
 
@@ -242,6 +243,23 @@ void main() {
       expect(devices.unregisteredTokens, isEmpty);
       expect(localNotifications.cancelAllCalls, 0);
     });
+
+    test(
+      'logout stops location tracking before clearing authentication',
+      () async {
+        final coordinator = createCoordinator();
+        final events = <String>[];
+        final logout = SessionLogoutCoordinator(
+          notifications: coordinator,
+          stopLocationTracking: () async => events.add('location-stop'),
+          authSignOut: () async => events.add('auth-sign-out'),
+        );
+
+        await logout.signOut();
+
+        expect(events, ['location-stop', 'auth-sign-out']);
+      },
+    );
 
     test('logout does not wait for an in-flight registration', () async {
       final coordinator = createCoordinator();
@@ -254,6 +272,7 @@ void main() {
       await pumpEventQueue();
       final logout = SessionLogoutCoordinator(
         notifications: coordinator,
+        stopLocationTracking: () async {},
         authSignOut: () async => events.add('auth-sign-out'),
       );
 
@@ -272,6 +291,7 @@ void main() {
       var authSignedOut = false;
       final logout = SessionLogoutCoordinator(
         notifications: coordinator,
+        stopLocationTracking: () async {},
         authSignOut: () async => authSignedOut = true,
       );
 

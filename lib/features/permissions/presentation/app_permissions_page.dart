@@ -42,12 +42,14 @@ class AppPermissionsPage extends ConsumerWidget {
     switch (requirement) {
       case AppPermissionRequirement.notificationPermanentlyDenied:
       case AppPermissionRequirement.locationPermanentlyDenied:
+      case AppPermissionRequirement.backgroundLocationPermanentlyDenied:
         await gateway.openAppSettings();
       case AppPermissionRequirement.locationServicesDisabled:
         await gateway.openLocationSettings();
       case null:
       case AppPermissionRequirement.notificationDenied:
       case AppPermissionRequirement.locationDenied:
+      case AppPermissionRequirement.backgroundLocationDenied:
       case AppPermissionRequirement.ready:
         await ref.read(appPermissionsControllerProvider.notifier).recheck();
     }
@@ -125,6 +127,19 @@ class _PermissionContent extends StatelessWidget {
             'Enable location access for ProtectMe in system settings to continue.',
         action: 'Open app settings',
       ),
+      AppPermissionRequirement.backgroundLocationDenied => const _PermissionCopy(
+        title: 'Allow background location',
+        body:
+            'Allow ProtectMe to access location all the time so it can keep sharing your location while you use other apps.',
+        action: 'Allow background location',
+      ),
+      AppPermissionRequirement.backgroundLocationPermanentlyDenied =>
+        const _PermissionCopy(
+          title: 'Background location is off',
+          body:
+              'Enable Allow all the time for ProtectMe in system settings to keep location sharing active.',
+          action: 'Open app settings',
+        ),
       AppPermissionRequirement.locationServicesDisabled =>
         const _PermissionCopy(
           title: 'Turn on device location',
