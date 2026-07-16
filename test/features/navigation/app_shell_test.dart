@@ -10,9 +10,10 @@ import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/auth/domain/auth_user.dart';
 import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
 import 'package:zhu_app/features/profile/presentation/profile_page.dart';
+import 'package:zhu_app/features/relationships/presentation/relationships_page.dart';
 
 void main() {
-  testWidgets('bottom navigation shows contacts and profile pages', (
+  testWidgets('bottom navigation lazily shows relationship and profile pages', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -28,9 +29,16 @@ void main() {
       ),
     );
 
+    expect(find.text('Guardians'), findsOneWidget);
+    expect(find.byType(RelationshipsPage), findsNothing);
+
     await tester.tap(find.byIcon(Icons.people_outline));
-    await tester.pumpAndSettle();
-    expect(find.text('No contacts yet'), findsOneWidget);
+    await tester.pump();
+    expect(find.byType(RelationshipsPage), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.supervisor_account_outlined));
+    await tester.pump();
+    expect(find.byType(RelationshipsPage), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.person_outline));
     await tester.pumpAndSettle();
