@@ -7,8 +7,11 @@ class LivenessCheckResponseRepository implements LivenessCheckResponseClient {
   final AuthenticatedApiClient _client;
 
   @override
-  Future<void> respond(String riskType) {
+  Future<void> respond(String riskType, {required bool isOkay}) {
     final encodedRiskType = Uri.encodeComponent(riskType);
-    return _client.post('/user-risks/$encodedRiskType/liveness-check/respond');
+    return _client.postJson(
+      '/user-risks/$encodedRiskType/liveness-check/respond',
+      {'isOkay': isOkay},
+    );
   }
 }

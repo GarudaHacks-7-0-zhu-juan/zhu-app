@@ -31,6 +31,10 @@ Future<void> showBackgroundRemoteNotification(
         id: livenessCheckYesActionId,
         label: "Yes, I'm safe",
       ),
+      LocalNotificationAction(
+        id: livenessCheckNoActionId,
+        label: "No, I'm not safe",
+      ),
     ],
   );
 }

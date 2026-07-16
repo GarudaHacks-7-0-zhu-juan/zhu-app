@@ -107,7 +107,7 @@ void main() {
       });
     });
 
-    test('shows liveness action and submits allowlisted risk type', () async {
+    test('submits true for yes liveness action', () async {
       final coordinator = createCoordinator();
       await coordinator.syncForSession(authenticated: true);
 
@@ -129,6 +129,10 @@ void main() {
           id: livenessCheckYesActionId,
           label: "Yes, I'm safe",
         ),
+        LocalNotificationAction(
+          id: livenessCheckNoActionId,
+          label: "No, I'm not safe",
+        ),
       ]);
 
       localNotifications.respond(
@@ -137,7 +141,37 @@ void main() {
       );
       await pumpEventQueue();
 
-      expect(livenessResponses.riskTypes, [highRiskAreaRiskType]);
+      expect(livenessResponses.responses, [
+        (riskType: highRiskAreaRiskType, isOkay: true),
+      ]);
+    });
+
+    test('submits false for no liveness action', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
+
+      messaging.foregroundController.add(
+        const NotificationMessage(
+          title: 'Are you safe?',
+          body: 'Confirm that you are safe.',
+          data: {
+            'eventType': livenessCheckEventType,
+            'riskType': highRiskAreaRiskType,
+          },
+        ),
+      );
+      await pumpEventQueue();
+      final shown = localNotifications.shown.single;
+
+      localNotifications.respond(
+        actionId: livenessCheckNoActionId,
+        payload: shown.payload,
+      );
+      await pumpEventQueue();
+
+      expect(livenessResponses.responses, [
+        (riskType: highRiskAreaRiskType, isOkay: false),
+      ]);
     });
 
     test('ignores liveness action with an untrusted risk type', () async {
@@ -150,7 +184,7 @@ void main() {
       );
       await pumpEventQueue();
 
-      expect(livenessResponses.riskTypes, isEmpty);
+      expect(livenessResponses.responses, isEmpty);
     });
 
     test('opens only allowlisted routes from remote and local taps', () async {
@@ -400,11 +434,11 @@ class FakeLocalNotifications implements LocalNotificationClient {
 }
 
 class FakeLivenessResponses implements LivenessCheckResponseClient {
-  final riskTypes = <String>[];
+  final responses = <({String riskType, bool isOkay})>[];
 
   @override
-  Future<void> respond(String riskType) async {
-    riskTypes.add(riskType);
+  Future<void> respond(String riskType, {required bool isOkay}) async {
+    responses.add((riskType: riskType, isOkay: isOkay));
   }
 }
 
