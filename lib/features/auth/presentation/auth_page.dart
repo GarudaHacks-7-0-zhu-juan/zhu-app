@@ -21,13 +21,16 @@ class AuthPage extends ConsumerStatefulWidget {
 
 class _AuthPageState extends ConsumerState<AuthPage> {
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmationController = TextEditingController();
   final _emailFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _confirmationFocusNode = FocusNode();
 
   String? _emailError;
+  String? _phoneError;
   String? _passwordError;
   String? _confirmationError;
   bool _obscurePassword = true;
@@ -48,6 +51,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       _passwordController.clear();
       _confirmationController.clear();
       setState(() {
+        _phoneError = null;
         _passwordError = null;
         _confirmationError = null;
       });
@@ -58,9 +62,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   @override
   void dispose() {
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmationController.dispose();
     _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
     _passwordFocusNode.dispose();
     _confirmationFocusNode.dispose();
     super.dispose();
@@ -116,8 +122,9 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               textInputAction: TextInputAction.next,
                               autofillHints: const [AutofillHints.email],
                               placeholder: const Text('you@example.com'),
-                              onSubmitted: (_) =>
-                                  _passwordFocusNode.requestFocus(),
+                              onSubmitted: (_) => _isRegistering
+                                  ? _phoneFocusNode.requestFocus()
+                                  : _passwordFocusNode.requestFocus(),
                               onChanged: (value) {
                                 ref
                                     .read(authDraftEmailProvider.notifier)
@@ -126,6 +133,27 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               },
                             ),
                           ),
+                          if (_isRegistering) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            _InputField(
+                              label: 'Phone number',
+                              error: _phoneError,
+                              input: ShadInput(
+                                controller: _phoneController,
+                                focusNode: _phoneFocusNode,
+                                enabled: !isSubmitting,
+                                keyboardType: TextInputType.phone,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [
+                                  AutofillHints.telephoneNumber,
+                                ],
+                                placeholder: const Text('+628123456789'),
+                                onSubmitted: (_) =>
+                                    _passwordFocusNode.requestFocus(),
+                                onChanged: (_) => _clearPhoneError(),
+                              ),
+                            ),
+                          ],
                           const SizedBox(height: AppSpacing.md),
                           _InputField(
                             label: 'Password',
@@ -226,8 +254,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                   ),
                             child: Text(
                               _isRegistering
-                                  ? 'Already have an account? Sign in'
-                                  : 'New to ProtectMe? Create account',
+                                  ? 'Have an account? Sign in'
+                                  : 'New here? Create account',
                             ),
                           ),
                         ],
@@ -247,10 +275,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (!_validate()) return;
 
     final email = _emailController.text.trim();
+    final phoneNumber = _phoneController.text.trim();
     final password = _passwordController.text;
     final controller = ref.read(authSubmissionControllerProvider.notifier);
     if (_isRegistering) {
-      controller.register(email: email, password: password);
+      controller.register(
+        email: email,
+        password: password,
+        phoneNumber: phoneNumber,
+      );
     } else {
       controller.signIn(email: email, password: password);
     }
@@ -258,6 +291,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   bool _validate() {
     final email = _emailController.text.trim();
+    final phoneNumber = _phoneController.text.trim();
     final password = _passwordController.text;
     final confirmation = _confirmationController.text;
     final emailError =
@@ -267,18 +301,27 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     final passwordError = password.length < 8
         ? 'Password must contain at least 8 characters.'
         : null;
+    final phoneError =
+        _isRegistering && !RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(phoneNumber)
+        ? 'Enter a valid phone number with country code.'
+        : null;
     final confirmationError = _isRegistering && confirmation != password
         ? 'Passwords do not match.'
         : null;
 
     setState(() {
       _emailError = emailError;
+      _phoneError = phoneError;
       _passwordError = passwordError;
       _confirmationError = confirmationError;
     });
 
     if (emailError != null) {
       _emailFocusNode.requestFocus();
+      return false;
+    }
+    if (phoneError != null) {
+      _phoneFocusNode.requestFocus();
       return false;
     }
     if (passwordError != null) {
@@ -294,6 +337,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   void _clearEmailError() {
     if (_emailError != null) setState(() => _emailError = null);
+  }
+
+  void _clearPhoneError() {
+    if (_phoneError != null) setState(() => _phoneError = null);
   }
 
   void _clearPasswordError() {
@@ -375,7 +422,8 @@ class _FailureNotice extends StatelessWidget {
       switch (failure) {
         ValidationAuthFailure() => 'Check the highlighted fields.',
         InvalidCredentialsAuthFailure() => 'Invalid email or password.',
-        EmailAlreadyRegisteredAuthFailure() => 'Email is already registered.',
+        AccountAlreadyRegisteredAuthFailure() =>
+          'Email or phone number is already registered.',
         UnauthorizedSessionAuthFailure() =>
           'Your session has expired. Sign in again.',
         NetworkAuthFailure() => 'Unable to connect. Try again.',

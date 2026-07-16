@@ -7,8 +7,8 @@ sealed class AuthFailure with _$AuthFailure implements Exception {
   const factory AuthFailure.validation() = ValidationAuthFailure;
   const factory AuthFailure.invalidCredentials() =
       InvalidCredentialsAuthFailure;
-  const factory AuthFailure.emailAlreadyRegistered() =
-      EmailAlreadyRegisteredAuthFailure;
+  const factory AuthFailure.accountAlreadyRegistered() =
+      AccountAlreadyRegisteredAuthFailure;
   const factory AuthFailure.unauthorizedSession() =
       UnauthorizedSessionAuthFailure;
   const factory AuthFailure.network() = NetworkAuthFailure;

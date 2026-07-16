@@ -26,12 +26,13 @@ class AuthSubmissionController extends _$AuthSubmissionController {
   Future<void> register({
     required String email,
     required String password,
+    required String phoneNumber,
   }) async {
     state = const AuthSubmissionState(isSubmitting: true);
     try {
       await ref
           .read(authSessionControllerProvider.notifier)
-          .register(email: email, password: password);
+          .register(email: email, password: password, phoneNumber: phoneNumber);
       ref.read(authDraftEmailProvider.notifier).clear();
       state = const AuthSubmissionState();
     } on AuthFailure catch (failure) {

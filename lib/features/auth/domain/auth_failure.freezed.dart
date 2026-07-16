@@ -55,13 +55,13 @@ extension AuthFailurePatterns on AuthFailure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ValidationAuthFailure value)?  validation,TResult Function( InvalidCredentialsAuthFailure value)?  invalidCredentials,TResult Function( EmailAlreadyRegisteredAuthFailure value)?  emailAlreadyRegistered,TResult Function( UnauthorizedSessionAuthFailure value)?  unauthorizedSession,TResult Function( NetworkAuthFailure value)?  network,TResult Function( TimeoutAuthFailure value)?  timeout,TResult Function( UnexpectedAuthFailure value)?  unexpected,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ValidationAuthFailure value)?  validation,TResult Function( InvalidCredentialsAuthFailure value)?  invalidCredentials,TResult Function( AccountAlreadyRegisteredAuthFailure value)?  accountAlreadyRegistered,TResult Function( UnauthorizedSessionAuthFailure value)?  unauthorizedSession,TResult Function( NetworkAuthFailure value)?  network,TResult Function( TimeoutAuthFailure value)?  timeout,TResult Function( UnexpectedAuthFailure value)?  unexpected,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ValidationAuthFailure() when validation != null:
 return validation(_that);case InvalidCredentialsAuthFailure() when invalidCredentials != null:
-return invalidCredentials(_that);case EmailAlreadyRegisteredAuthFailure() when emailAlreadyRegistered != null:
-return emailAlreadyRegistered(_that);case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
+return invalidCredentials(_that);case AccountAlreadyRegisteredAuthFailure() when accountAlreadyRegistered != null:
+return accountAlreadyRegistered(_that);case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
 return unauthorizedSession(_that);case NetworkAuthFailure() when network != null:
 return network(_that);case TimeoutAuthFailure() when timeout != null:
 return timeout(_that);case UnexpectedAuthFailure() when unexpected != null:
@@ -83,13 +83,13 @@ return unexpected(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ValidationAuthFailure value)  validation,required TResult Function( InvalidCredentialsAuthFailure value)  invalidCredentials,required TResult Function( EmailAlreadyRegisteredAuthFailure value)  emailAlreadyRegistered,required TResult Function( UnauthorizedSessionAuthFailure value)  unauthorizedSession,required TResult Function( NetworkAuthFailure value)  network,required TResult Function( TimeoutAuthFailure value)  timeout,required TResult Function( UnexpectedAuthFailure value)  unexpected,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ValidationAuthFailure value)  validation,required TResult Function( InvalidCredentialsAuthFailure value)  invalidCredentials,required TResult Function( AccountAlreadyRegisteredAuthFailure value)  accountAlreadyRegistered,required TResult Function( UnauthorizedSessionAuthFailure value)  unauthorizedSession,required TResult Function( NetworkAuthFailure value)  network,required TResult Function( TimeoutAuthFailure value)  timeout,required TResult Function( UnexpectedAuthFailure value)  unexpected,}){
 final _that = this;
 switch (_that) {
 case ValidationAuthFailure():
 return validation(_that);case InvalidCredentialsAuthFailure():
-return invalidCredentials(_that);case EmailAlreadyRegisteredAuthFailure():
-return emailAlreadyRegistered(_that);case UnauthorizedSessionAuthFailure():
+return invalidCredentials(_that);case AccountAlreadyRegisteredAuthFailure():
+return accountAlreadyRegistered(_that);case UnauthorizedSessionAuthFailure():
 return unauthorizedSession(_that);case NetworkAuthFailure():
 return network(_that);case TimeoutAuthFailure():
 return timeout(_that);case UnexpectedAuthFailure():
@@ -107,13 +107,13 @@ return unexpected(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ValidationAuthFailure value)?  validation,TResult? Function( InvalidCredentialsAuthFailure value)?  invalidCredentials,TResult? Function( EmailAlreadyRegisteredAuthFailure value)?  emailAlreadyRegistered,TResult? Function( UnauthorizedSessionAuthFailure value)?  unauthorizedSession,TResult? Function( NetworkAuthFailure value)?  network,TResult? Function( TimeoutAuthFailure value)?  timeout,TResult? Function( UnexpectedAuthFailure value)?  unexpected,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ValidationAuthFailure value)?  validation,TResult? Function( InvalidCredentialsAuthFailure value)?  invalidCredentials,TResult? Function( AccountAlreadyRegisteredAuthFailure value)?  accountAlreadyRegistered,TResult? Function( UnauthorizedSessionAuthFailure value)?  unauthorizedSession,TResult? Function( NetworkAuthFailure value)?  network,TResult? Function( TimeoutAuthFailure value)?  timeout,TResult? Function( UnexpectedAuthFailure value)?  unexpected,}){
 final _that = this;
 switch (_that) {
 case ValidationAuthFailure() when validation != null:
 return validation(_that);case InvalidCredentialsAuthFailure() when invalidCredentials != null:
-return invalidCredentials(_that);case EmailAlreadyRegisteredAuthFailure() when emailAlreadyRegistered != null:
-return emailAlreadyRegistered(_that);case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
+return invalidCredentials(_that);case AccountAlreadyRegisteredAuthFailure() when accountAlreadyRegistered != null:
+return accountAlreadyRegistered(_that);case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
 return unauthorizedSession(_that);case NetworkAuthFailure() when network != null:
 return network(_that);case TimeoutAuthFailure() when timeout != null:
 return timeout(_that);case UnexpectedAuthFailure() when unexpected != null:
@@ -134,12 +134,12 @@ return unexpected(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  validation,TResult Function()?  invalidCredentials,TResult Function()?  emailAlreadyRegistered,TResult Function()?  unauthorizedSession,TResult Function()?  network,TResult Function()?  timeout,TResult Function()?  unexpected,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  validation,TResult Function()?  invalidCredentials,TResult Function()?  accountAlreadyRegistered,TResult Function()?  unauthorizedSession,TResult Function()?  network,TResult Function()?  timeout,TResult Function()?  unexpected,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ValidationAuthFailure() when validation != null:
 return validation();case InvalidCredentialsAuthFailure() when invalidCredentials != null:
-return invalidCredentials();case EmailAlreadyRegisteredAuthFailure() when emailAlreadyRegistered != null:
-return emailAlreadyRegistered();case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
+return invalidCredentials();case AccountAlreadyRegisteredAuthFailure() when accountAlreadyRegistered != null:
+return accountAlreadyRegistered();case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
 return unauthorizedSession();case NetworkAuthFailure() when network != null:
 return network();case TimeoutAuthFailure() when timeout != null:
 return timeout();case UnexpectedAuthFailure() when unexpected != null:
@@ -161,12 +161,12 @@ return unexpected();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  validation,required TResult Function()  invalidCredentials,required TResult Function()  emailAlreadyRegistered,required TResult Function()  unauthorizedSession,required TResult Function()  network,required TResult Function()  timeout,required TResult Function()  unexpected,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  validation,required TResult Function()  invalidCredentials,required TResult Function()  accountAlreadyRegistered,required TResult Function()  unauthorizedSession,required TResult Function()  network,required TResult Function()  timeout,required TResult Function()  unexpected,}) {final _that = this;
 switch (_that) {
 case ValidationAuthFailure():
 return validation();case InvalidCredentialsAuthFailure():
-return invalidCredentials();case EmailAlreadyRegisteredAuthFailure():
-return emailAlreadyRegistered();case UnauthorizedSessionAuthFailure():
+return invalidCredentials();case AccountAlreadyRegisteredAuthFailure():
+return accountAlreadyRegistered();case UnauthorizedSessionAuthFailure():
 return unauthorizedSession();case NetworkAuthFailure():
 return network();case TimeoutAuthFailure():
 return timeout();case UnexpectedAuthFailure():
@@ -184,12 +184,12 @@ return unexpected();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  validation,TResult? Function()?  invalidCredentials,TResult? Function()?  emailAlreadyRegistered,TResult? Function()?  unauthorizedSession,TResult? Function()?  network,TResult? Function()?  timeout,TResult? Function()?  unexpected,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  validation,TResult? Function()?  invalidCredentials,TResult? Function()?  accountAlreadyRegistered,TResult? Function()?  unauthorizedSession,TResult? Function()?  network,TResult? Function()?  timeout,TResult? Function()?  unexpected,}) {final _that = this;
 switch (_that) {
 case ValidationAuthFailure() when validation != null:
 return validation();case InvalidCredentialsAuthFailure() when invalidCredentials != null:
-return invalidCredentials();case EmailAlreadyRegisteredAuthFailure() when emailAlreadyRegistered != null:
-return emailAlreadyRegistered();case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
+return invalidCredentials();case AccountAlreadyRegisteredAuthFailure() when accountAlreadyRegistered != null:
+return accountAlreadyRegistered();case UnauthorizedSessionAuthFailure() when unauthorizedSession != null:
 return unauthorizedSession();case NetworkAuthFailure() when network != null:
 return network();case TimeoutAuthFailure() when timeout != null:
 return timeout();case UnexpectedAuthFailure() when unexpected != null:
@@ -268,8 +268,8 @@ String toString() {
 /// @nodoc
 
 
-class EmailAlreadyRegisteredAuthFailure implements AuthFailure {
-  const EmailAlreadyRegisteredAuthFailure();
+class AccountAlreadyRegisteredAuthFailure implements AuthFailure {
+  const AccountAlreadyRegisteredAuthFailure();
   
 
 
@@ -279,7 +279,7 @@ class EmailAlreadyRegisteredAuthFailure implements AuthFailure {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EmailAlreadyRegisteredAuthFailure);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AccountAlreadyRegisteredAuthFailure);
 }
 
 
@@ -288,7 +288,7 @@ int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'AuthFailure.emailAlreadyRegistered()';
+  return 'AuthFailure.accountAlreadyRegistered()';
 }
 
 

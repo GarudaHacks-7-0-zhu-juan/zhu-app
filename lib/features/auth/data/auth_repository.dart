@@ -22,8 +22,13 @@ class AuthRepository {
   Future<AuthUser> register({
     required String email,
     required String password,
+    required String phoneNumber,
   }) async {
-    final tokens = await _dataSource.register(email: email, password: password);
+    final tokens = await _dataSource.register(
+      email: email,
+      password: password,
+      phoneNumber: phoneNumber,
+    );
     return _completeAuthentication(tokens);
   }
 

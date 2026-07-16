@@ -42,7 +42,7 @@ final class AuthSubmissionControllerProvider
 }
 
 String _$authSubmissionControllerHash() =>
-    r'4e9ad8c477bf59482182d66908d3a525bb27d48a';
+    r'121223d37301764e7375156a99e12cef5ab7b2a5';
 
 abstract class _$AuthSubmissionController
     extends $Notifier<AuthSubmissionState> {

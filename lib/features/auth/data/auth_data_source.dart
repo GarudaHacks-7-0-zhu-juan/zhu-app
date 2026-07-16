@@ -13,12 +13,13 @@ class AuthDataSource {
   Future<AuthTokens> register({
     required String email,
     required String password,
+    required String phoneNumber,
   }) {
     return _tokensRequest(
       '/auth/register',
-      data: {'email': email, 'password': password},
+      data: {'email': email, 'password': password, 'phoneNumber': phoneNumber},
       failureForStatus: (status) => status == 409
-          ? const AuthFailure.emailAlreadyRegistered()
+          ? const AuthFailure.accountAlreadyRegistered()
           : const AuthFailure.unexpected(),
     );
   }
