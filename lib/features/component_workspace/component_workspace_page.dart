@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:zhu_app/design_system/tokens/app_colors.dart';
 import 'package:zhu_app/design_system/tokens/app_spacing.dart';
 import 'package:zhu_app/design_system/theme/app_shad_theme.dart';
+import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
+import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 
 class ComponentWorkspacePage extends StatefulWidget {
   const ComponentWorkspacePage({super.key});
@@ -61,12 +64,17 @@ class _ComponentWorkspacePageState extends State<ComponentWorkspacePage> {
   }
 }
 
-class _WorkspaceHeader extends StatelessWidget {
+class _WorkspaceHeader extends ConsumerWidget {
   const _WorkspaceHeader();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = ShadTheme.of(context);
+    final session = ref.watch(authSessionControllerProvider);
+    final email = switch (session) {
+      AuthenticatedAuthSessionState(:final user) => user.email,
+      _ => '',
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -74,7 +82,7 @@ class _WorkspaceHeader extends StatelessWidget {
           children: [
             Text('ZHU / UI LAB', style: theme.textTheme.technical),
             const Spacer(),
-            Text('REV 1.0', style: theme.textTheme.technical),
+            _AccountMenu(email: email),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
@@ -90,6 +98,74 @@ class _WorkspaceHeader extends StatelessWidget {
         const _DimensionRule(label: 'MOBILE / LIGHT / 01'),
       ],
     );
+  }
+}
+
+class _AccountMenu extends ConsumerStatefulWidget {
+  const _AccountMenu({required this.email});
+
+  final String email;
+
+  @override
+  ConsumerState<_AccountMenu> createState() => _AccountMenuState();
+}
+
+class _AccountMenuState extends ConsumerState<_AccountMenu> {
+  final _popoverController = ShadPopoverController();
+  bool _isSigningOut = false;
+
+  @override
+  void dispose() {
+    _popoverController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = ShadTheme.of(context);
+    return ShadPopover(
+      controller: _popoverController,
+      child: Semantics(
+        button: true,
+        label: 'Account menu',
+        child: ShadButton.ghost(
+          width: 44,
+          height: 44,
+          padding: EdgeInsets.zero,
+          onPressed: _popoverController.toggle,
+          child: const Icon(Icons.account_circle_outlined),
+        ),
+      ),
+      popover: (context) => SizedBox(
+        width: 240,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('SIGNED IN AS', style: theme.textTheme.technical),
+            const SizedBox(height: AppSpacing.xs),
+            Text(widget.email, style: theme.textTheme.small),
+            const SizedBox(height: AppSpacing.md),
+            ShadButton.outline(
+              onPressed: _isSigningOut ? null : _signOut,
+              child: _isSigningOut
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Sign out'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _signOut() async {
+    setState(() => _isSigningOut = true);
+    _popoverController.hide();
+    await ref.read(authSessionControllerProvider.notifier).signOut();
+    if (mounted) setState(() => _isSigningOut = false);
   }
 }
 

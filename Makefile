@@ -3,7 +3,7 @@ DART := fvm dart
 DEVICE ?=
 RUN_ARGS := $(if $(DEVICE),-d "$(DEVICE)",)
 
-.PHONY: help setup fvm pub-get run devices doctor analyze test format clean
+.PHONY: help setup fvm pub-get run devices doctor analyze test format generate clean
 
 help:
 	@printf '%s\n' \
@@ -15,6 +15,7 @@ help:
 		'make analyze     Run static analysis' \
 		'make test        Run test suite' \
 		'make format      Format Dart source files' \
+		'make generate    Generate Riverpod and model source files' \
 		'make clean       Remove build outputs and restore dependencies'
 
 setup: fvm pub-get
@@ -42,6 +43,9 @@ test:
 
 format:
 	$(DART) format .
+
+generate:
+	$(DART) run build_runner build
 
 clean:
 	$(FLUTTER) clean
