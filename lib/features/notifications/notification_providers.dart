@@ -8,6 +8,7 @@ import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/notifications/controller/notification_coordinator.dart';
 import 'package:zhu_app/features/notifications/data/firebase_notification_clients.dart';
+import 'package:zhu_app/features/notifications/data/liveness_check_response_repository.dart';
 import 'package:zhu_app/features/notifications/data/push_device_repository.dart';
 import 'package:zhu_app/features/notifications/domain/notification_clients.dart';
 
@@ -23,12 +24,20 @@ final pushDeviceClientProvider = Provider<PushDeviceClient>(
   (ref) => PushDeviceRepository(ref.watch(authenticatedApiClientProvider)),
 );
 
+final livenessCheckResponseClientProvider =
+    Provider<LivenessCheckResponseClient>(
+      (ref) => LivenessCheckResponseRepository(
+        ref.watch(authenticatedApiClientProvider),
+      ),
+    );
+
 final notificationCoordinatorProvider = Provider<NotificationCoordinator>(
   (ref) => NotificationCoordinator(
     isAndroid: !kIsWeb && defaultTargetPlatform == TargetPlatform.android,
     messaging: ref.watch(pushMessagingClientProvider),
     localNotifications: ref.watch(localNotificationClientProvider),
     devices: ref.watch(pushDeviceClientProvider),
+    livenessResponses: ref.watch(livenessCheckResponseClientProvider),
     openRoute: ref.watch(appRouterProvider).go,
   ),
 );

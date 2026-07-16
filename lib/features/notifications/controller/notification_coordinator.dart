@@ -10,12 +10,14 @@ class NotificationCoordinator {
     required PushMessagingClient messaging,
     required LocalNotificationClient localNotifications,
     required PushDeviceClient devices,
+    required LivenessCheckResponseClient livenessResponses,
     required void Function(String route) openRoute,
     Future<void> Function(Duration duration)? delay,
   }) : _isAndroid = isAndroid,
        _messaging = messaging,
        _localNotifications = localNotifications,
        _devices = devices,
+       _livenessResponses = livenessResponses,
        _openRoute = openRoute,
        _delay = delay ?? ((duration) => Future<void>.delayed(duration));
 
@@ -25,6 +27,7 @@ class NotificationCoordinator {
   final PushMessagingClient _messaging;
   final LocalNotificationClient _localNotifications;
   final PushDeviceClient _devices;
+  final LivenessCheckResponseClient _livenessResponses;
   final void Function(String route) _openRoute;
   final Future<void> Function(Duration duration) _delay;
 
@@ -105,7 +108,7 @@ class NotificationCoordinator {
 
     try {
       final permissionGranted = await _localNotifications
-          .initializeAndRequestPermission(onTap: _handleLocalTap);
+          .initializeAndRequestPermission(onResponse: _handleLocalResponse);
       if (!_isCurrent(generation)) return;
       if (!permissionGranted) {
         await _stop();
@@ -176,12 +179,28 @@ class NotificationCoordinator {
 
   Future<void> _performForegroundDisplay(NotificationMessage message) async {
     final route = routeFromData(message.data);
+    final riskType = riskTypeFromData(message.data);
+    final isLivenessCheck =
+        message.data['eventType'] == livenessCheckEventType && riskType != null;
+    final payload = <String, dynamic>{
+      'route': ?route,
+      if (isLivenessCheck) 'eventType': livenessCheckEventType,
+      'riskType': ?riskType,
+    };
     try {
       await _localNotifications.show(
         id: _nextNotificationId++,
         title: message.title,
         body: message.body,
-        payload: route == null ? null : jsonEncode({'route': route}),
+        payload: payload.isEmpty ? null : jsonEncode(payload),
+        actions: isLivenessCheck
+            ? const [
+                LocalNotificationAction(
+                  id: livenessCheckYesActionId,
+                  label: "Yes, I'm safe",
+                ),
+              ]
+            : const [],
       );
     } catch (error, stackTrace) {
       _log('Could not show foreground notification.', error, stackTrace);
@@ -193,8 +212,20 @@ class NotificationCoordinator {
     if (route != null) _openRoute(route);
   }
 
-  void _handleLocalTap(String? payload) {
-    final route = routeFromPayload(payload);
+  Future<void> _handleLocalResponse(LocalNotificationResponse response) async {
+    if (response.actionId == livenessCheckYesActionId) {
+      final riskType = riskTypeFromPayload(response.payload);
+      if (riskType == null) return;
+      try {
+        await _livenessResponses.respond(riskType);
+        _logInfo('Liveness check response submitted.');
+      } catch (error, stackTrace) {
+        _log('Could not submit liveness check response.', error, stackTrace);
+      }
+      return;
+    }
+
+    final route = routeFromPayload(response.payload);
     if (route != null) _openRoute(route);
   }
 
@@ -203,12 +234,26 @@ class NotificationCoordinator {
     return route == allowedRoute ? allowedRoute : null;
   }
 
+  static String? riskTypeFromData(Map<String, dynamic> data) {
+    final riskType = data['riskType'];
+    return riskType == highRiskAreaRiskType ? highRiskAreaRiskType : null;
+  }
+
   static String? routeFromPayload(String? payload) {
+    final decoded = _decodePayload(payload);
+    return decoded == null ? null : routeFromData(decoded);
+  }
+
+  static String? riskTypeFromPayload(String? payload) {
+    final decoded = _decodePayload(payload);
+    return decoded == null ? null : riskTypeFromData(decoded);
+  }
+
+  static Map<String, dynamic>? _decodePayload(String? payload) {
     if (payload == null || payload.isEmpty) return null;
     try {
       final decoded = jsonDecode(payload);
-      if (decoded is! Map<String, dynamic>) return null;
-      return routeFromData(decoded);
+      return decoded is Map<String, dynamic> ? decoded : null;
     } on FormatException {
       return null;
     }
