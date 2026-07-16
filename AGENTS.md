@@ -4,6 +4,7 @@
 
 - Flutter application for Android and iOS only.
 - Flutter SDK is pinned to `3.41.9` in `.fvmrc`.
+- Android minimum SDK is 23 because refresh tokens use `flutter_secure_storage`.
 - Use project-local workflows. Do not use globally installed `flutter` or `dart` directly.
 
 ## Commands
@@ -12,12 +13,49 @@
 - Run locally: `make run DEVICE=<device-id>`
 - List devices: `make devices`
 - Format: `make format`
+- Generate Riverpod and model source: `make generate`
 - Analyze: `make analyze`
 - Test: `make test`
 - Clean generated outputs: `make clean`
 
 When a Make target does not cover a Flutter command, use `fvm flutter <command>`
 or `fvm dart <command>`.
+
+For generated-code changes, run `make generate`, then `make format`, then
+`make analyze`.
+
+## Application Structure
+
+Use feature-first organization:
+
+```text
+lib/
+  app/                 # Bootstrap, config, router
+  core/                # Cross-feature network and platform primitives
+  design_system/       # Shared theme tokens and visual components
+  features/
+    <feature>/
+      data/            # Data sources and repository implementations
+      domain/          # Immutable models, contracts, and failures
+      controller/      # Riverpod controllers/providers
+      presentation/    # Pages and feature-specific widgets
+```
+
+- Keep generic utilities next to their consumer. Do not create catch-all
+  `utils/`, `widgets/`, or `hooks/` folders.
+- Do not add Flutter Hooks unless a concrete feature requires it.
+- Use Riverpod for state management and dependency injection. Prefer generated
+  providers/controllers through `riverpod_annotation`.
+- Use `go_router` for application navigation and route access control.
+- Use Dio for network requests. Keep generic Dio setup in `core/network/`.
+  Auth-owned clients add bearer tokens, coordinate a single token refresh, and
+  retry a protected request once; repositories must not duplicate this logic.
+- Use Freezed and JSON serialization for immutable models, DTOs, states, and
+  failure unions.
+- Commit generated `.g.dart` and `.freezed.dart` files. Regenerate them after
+  changing annotated providers or models.
+- Store refresh tokens only in `flutter_secure_storage`; keep access tokens in
+  memory. Never log credentials or token values.
 
 ## Engineering Rules
 
