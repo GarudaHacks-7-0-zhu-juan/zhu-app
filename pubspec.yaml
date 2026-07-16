@@ -8,7 +8,6 @@ environment:
 
 dependencies:
   dio: ^5.9.1
-  firebase_app_installations: ^0.4.2+6
   firebase_core: ^4.12.1
   firebase_messaging: ^16.4.3
   flutter:
@@ -20,6 +19,7 @@ dependencies:
   geolocator: ^14.0.3
   go_router: ^17.1.0
   json_annotation: ^4.11.0
+  logarte: ^1.5.0
   permission_handler: ^12.0.3
   riverpod_annotation: ^4.0.1
   shadcn_ui: ^0.55.0

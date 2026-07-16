@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:logarte/logarte.dart';
 import 'package:zhu_app/app/app_config.dart';
+import 'package:zhu_app/core/diagnostics/app_logarte.dart';
 
 Dio createApiDio(AppConfig config) {
-  return Dio(
+  final dio = Dio(
     BaseOptions(
       baseUrl: config.apiBaseUrl.toString(),
       connectTimeout: const Duration(seconds: 15),
@@ -12,4 +15,8 @@ Dio createApiDio(AppConfig config) {
       responseType: ResponseType.json,
     ),
   );
+  if (kDebugMode) {
+    dio.interceptors.add(LogarteDioInterceptor(appLogarte));
+  }
+  return dio;
 }

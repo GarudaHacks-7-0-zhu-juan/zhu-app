@@ -125,7 +125,7 @@ void main() {
     });
 
     test(
-      'forced session loss clears local identity without unregistering',
+      'forced session loss stops listeners without clearing identity',
       () async {
         final coordinator = createCoordinator();
         await coordinator.syncForSession(authenticated: true);
@@ -137,29 +137,26 @@ void main() {
 
         expect(devices.registeredIds, isEmpty);
         expect(devices.unregisteredIds, isEmpty);
-        expect(messaging.deactivateCalls, 1);
-        expect(installations.deleteCalls, 1);
-        expect(localNotifications.cancelAllCalls, 1);
+        expect(messaging.deactivateCalls, 0);
+        expect(installations.deleteCalls, 0);
+        expect(localNotifications.cancelAllCalls, 0);
       },
     );
 
-    test(
-      'cleans the previous identity before rapid reauthentication',
-      () async {
-        final coordinator = createCoordinator();
-        await coordinator.syncForSession(authenticated: true);
+    test('reuses identity after rapid reauthentication', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
 
-        final signedOut = coordinator.syncForSession(authenticated: false);
-        final signedBackIn = coordinator.syncForSession(authenticated: true);
-        await Future.wait([signedOut, signedBackIn]);
+      final signedOut = coordinator.syncForSession(authenticated: false);
+      final signedBackIn = coordinator.syncForSession(authenticated: true);
+      await Future.wait([signedOut, signedBackIn]);
 
-        expect(localNotifications.cancelAllCalls, 1);
-        expect(messaging.deactivateCalls, 1);
-        expect(installations.deleteCalls, 1);
-        expect(messaging.activateCalls, 2);
-        expect(devices.registeredIds, ['test-fid', 'test-fid']);
-      },
-    );
+      expect(localNotifications.cancelAllCalls, 0);
+      expect(messaging.deactivateCalls, 0);
+      expect(installations.deleteCalls, 0);
+      expect(messaging.activateCalls, 2);
+      expect(devices.registeredIds, ['test-fid', 'test-fid']);
+    });
 
     test('retries registration after a temporary failure', () async {
       devices.registerFailuresRemaining = 1;
@@ -185,7 +182,7 @@ void main() {
       },
     );
 
-    test('explicit logout unregisters before auth and token cleanup', () async {
+    test('explicit logout keeps push identity and signs out', () async {
       final events = <String>[];
       devices.events = events;
       messaging.events = events;
@@ -201,50 +198,52 @@ void main() {
 
       await logout.signOut();
 
-      expect(events, [
-        'unregister',
-        'auth-sign-out',
-        'cancel-notifications',
-        'deactivate',
-        'delete-installation',
-      ]);
+      expect(events, ['auth-sign-out']);
+      expect(devices.unregisteredIds, isEmpty);
+      expect(messaging.deactivateCalls, 0);
+      expect(installations.deleteCalls, 0);
+      expect(localNotifications.cancelAllCalls, 0);
+    });
+
+    test('logout does not wait for an in-flight registration', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
+      final events = <String>[];
+      devices
+        ..events = events
+        ..registerCompleter = Completer<void>();
+      messaging.tokenRefreshController.add(null);
+      await pumpEventQueue();
+      final logout = SessionLogoutCoordinator(
+        notifications: coordinator,
+        authSignOut: () async => events.add('auth-sign-out'),
+      );
+
+      await logout.signOut();
+
+      expect(events, ['register-start', 'auth-sign-out']);
+      expect(devices.unregisteredIds, isEmpty);
+
+      devices.registerCompleter!.complete();
+      await pumpEventQueue();
+      expect(events, ['register-start', 'auth-sign-out', 'register-end']);
     });
 
     test(
-      'logout drains an in-flight registration before unregistering',
+      'logout does not create an installation only to unregister it',
       () async {
         final coordinator = createCoordinator();
-        await coordinator.syncForSession(authenticated: true);
-        final events = <String>[];
-        devices
-          ..events = events
-          ..registerCompleter = Completer<void>();
-        messaging.events = events;
-        installations.events = events;
-        localNotifications.events = events;
-        messaging.tokenRefreshController.add(null);
-        await pumpEventQueue();
+        var authSignedOut = false;
         final logout = SessionLogoutCoordinator(
           notifications: coordinator,
-          authSignOut: () async => events.add('auth-sign-out'),
+          authSignOut: () async => authSignedOut = true,
         );
 
-        final logoutFuture = logout.signOut();
-        await pumpEventQueue();
-        expect(events, ['register-start']);
+        await logout.signOut();
 
-        devices.registerCompleter!.complete();
-        await logoutFuture;
-
-        expect(events, [
-          'register-start',
-          'register-end',
-          'unregister',
-          'auth-sign-out',
-          'cancel-notifications',
-          'deactivate',
-          'delete-installation',
-        ]);
+        expect(authSignedOut, isTrue);
+        expect(installations.getIdCalls, 0);
+        expect(devices.unregisteredIds, isEmpty);
       },
     );
   });
@@ -299,11 +298,13 @@ class FakeInstallations implements InstallationIdSource {
   int getIdCalls = 0;
   int deleteCalls = 0;
   List<String>? events;
+  Completer<void>? deleteCompleter;
 
   @override
   Future<void> delete() async {
     deleteCalls++;
     events?.add('delete-installation');
+    await deleteCompleter?.future;
   }
 
   @override
@@ -356,6 +357,7 @@ class FakeDevices implements PushDeviceClient {
   final unregisteredIds = <String>[];
   List<String>? events;
   Completer<void>? registerCompleter;
+  Completer<void>? unregisterCompleter;
   int registerAttempts = 0;
   int registerFailuresRemaining = 0;
 
@@ -378,6 +380,7 @@ class FakeDevices implements PushDeviceClient {
   Future<void> unregister(String installationId) async {
     unregisteredIds.add(installationId);
     events?.add('unregister');
+    await unregisterCompleter?.future;
   }
 }
 

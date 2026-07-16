@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zhu_app/features/notifications/domain/notification_clients.dart';
 
@@ -55,20 +55,26 @@ class FirebasePushMessagingClient implements PushMessagingClient {
   }
 }
 
-class FirebaseInstallationIdSource implements InstallationIdSource {
-  FirebaseInstallationIdSource([FirebaseInstallations? installations])
-    : _injectedInstallations = installations;
+class AndroidFirebaseInstallationIdSource implements InstallationIdSource {
+  AndroidFirebaseInstallationIdSource([
+    MethodChannel channel = const MethodChannel(
+      'com.zhujuan.zhu_app/firebase_installations',
+    ),
+  ]) : _channel = channel;
 
-  final FirebaseInstallations? _injectedInstallations;
-
-  FirebaseInstallations get _installations =>
-      _injectedInstallations ?? FirebaseInstallations.instance;
-
-  @override
-  Future<String> getId() => _installations.getId();
+  final MethodChannel _channel;
 
   @override
-  Future<void> delete() => _installations.delete();
+  Future<String> getId() async {
+    final installationId = await _channel.invokeMethod<String>('getId');
+    if (installationId == null || installationId.isEmpty) {
+      throw StateError('Firebase installation ID is unavailable.');
+    }
+    return installationId;
+  }
+
+  @override
+  Future<void> delete() => _channel.invokeMethod<void>('delete');
 }
 
 class AndroidLocalNotificationClient implements LocalNotificationClient {

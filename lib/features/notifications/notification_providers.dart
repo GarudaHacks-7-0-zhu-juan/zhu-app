@@ -16,7 +16,7 @@ final pushMessagingClientProvider = Provider<PushMessagingClient>(
 );
 
 final installationIdSourceProvider = Provider<InstallationIdSource>(
-  (ref) => FirebaseInstallationIdSource(),
+  (ref) => AndroidFirebaseInstallationIdSource(),
 );
 
 final localNotificationClientProvider = Provider<LocalNotificationClient>(
@@ -45,7 +45,7 @@ final notificationLifecycleProvider = Provider<void>((ref) {
     unawaited(
       next is AuthenticatedAuthSessionState
           ? coordinator.syncForSession(authenticated: true)
-          : coordinator.stop(clearIdentity: true),
+          : coordinator.stop(),
     );
   }, fireImmediately: true);
   ref.onDispose(() => unawaited(coordinator.stop()));
