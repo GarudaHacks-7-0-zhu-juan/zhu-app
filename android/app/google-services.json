@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328886564914",
+    "project_id": "zhu-juan",
+    "storage_bucket": "zhu-juan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328886564914:android:d18691e86b0351b645642b",
+        "android_client_info": {
+          "package_name": "com.zhujuan.zhu_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6-_Krw0_J2D3vBT7xPn0LnMtChIhHoIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -21,6 +21,14 @@ class AuthenticatedApiClient {
     await _dio.post<void>(path);
   }
 
+  Future<void> postJson(String path, Map<String, Object> data) async {
+    await _dio.post<void>(path, data: data);
+  }
+
+  Future<void> delete(String path) async {
+    await _dio.delete<void>(path);
+  }
+
   Map<String, dynamic> _asJsonMap(Object? data) {
     if (data case final Map<dynamic, dynamic> map) {
       return Map<String, dynamic>.from(map);

@@ -24,7 +24,7 @@ class ConfigErrorApp extends StatelessWidget {
               child: ShadCard(
                 title: const Text('App unavailable'),
                 description: const Text(
-                  'Authentication configuration could not be loaded.',
+                  'Required application services could not be initialized.',
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.md),
