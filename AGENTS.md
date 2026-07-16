@@ -66,15 +66,16 @@ lib/
   Obtain the initial token with `FirebaseMessaging.getToken()`, update it from
   `onTokenRefresh`, and never log token values.
 - `NotificationCoordinator` owns permission, token registration and refresh,
-  message listeners, retries, and routing. Start it from the app/session
+  message listeners, retries, actions, and routing. Start it from the app/session
   lifecycle, never from widget `build` methods or feature pages.
 - Register devices only after authentication through `AuthenticatedApiClient`.
   Keep FCM activation across logout for the hackathon demo; the backend upsert
   transfers the current token on the next authenticated login.
   Logout must stop message listeners without waiting for push I/O.
-- Foreground visible messages become local notifications. Android displays
-  notification payloads itself while backgrounded or terminated; do not create
-  a second background notification for the same message.
+- Foreground visible messages become local notifications. Liveness checks use
+  allowlisted data-only messages rendered locally in foreground and background
+  so Android actions work. Other notification payloads are displayed by Android
+  while backgrounded or terminated; do not create duplicates.
 - Keep Android channel ID `high_importance_channel` aligned with the NestJS
   payload and manifest metadata. Use a monochrome drawable for status icons.
 - Treat notification data as an untrusted hint. Allowlist routes and actions;

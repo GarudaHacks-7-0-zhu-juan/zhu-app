@@ -8,10 +8,12 @@ import 'package:zhu_app/app/app_config_provider.dart';
 import 'package:zhu_app/app/config_error_app.dart';
 import 'package:zhu_app/app/main_app.dart';
 import 'package:zhu_app/firebase_options.dart';
+import 'package:zhu_app/features/notifications/data/firebase_notification_clients.dart';
 
 @pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage _) async {
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await showBackgroundRemoteNotification(message);
 }
 
 Future<void> main() async {

@@ -10,12 +10,14 @@ void main() {
     late FakeMessaging messaging;
     late FakeLocalNotifications localNotifications;
     late FakeDevices devices;
+    late FakeLivenessResponses livenessResponses;
     late List<String> openedRoutes;
 
     setUp(() {
       messaging = FakeMessaging();
       localNotifications = FakeLocalNotifications();
       devices = FakeDevices();
+      livenessResponses = FakeLivenessResponses();
       openedRoutes = [];
     });
 
@@ -29,6 +31,7 @@ void main() {
         messaging: messaging,
         localNotifications: localNotifications,
         devices: devices,
+        livenessResponses: livenessResponses,
         openRoute: openedRoutes.add,
         delay: (_) async {},
       );
@@ -102,6 +105,52 @@ void main() {
       expect(jsonDecode(localNotifications.shown.single.payload!), {
         'route': '/workspace',
       });
+    });
+
+    test('shows liveness action and submits allowlisted risk type', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
+
+      messaging.foregroundController.add(
+        const NotificationMessage(
+          title: 'Are you safe?',
+          body: 'Confirm that you are safe.',
+          data: {
+            'eventType': livenessCheckEventType,
+            'riskType': highRiskAreaRiskType,
+          },
+        ),
+      );
+      await pumpEventQueue();
+
+      final shown = localNotifications.shown.single;
+      expect(shown.actions, const [
+        LocalNotificationAction(
+          id: livenessCheckYesActionId,
+          label: "Yes, I'm safe",
+        ),
+      ]);
+
+      localNotifications.respond(
+        actionId: livenessCheckYesActionId,
+        payload: shown.payload,
+      );
+      await pumpEventQueue();
+
+      expect(livenessResponses.riskTypes, [highRiskAreaRiskType]);
+    });
+
+    test('ignores liveness action with an untrusted risk type', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
+
+      localNotifications.respond(
+        actionId: livenessCheckYesActionId,
+        payload: '{"riskType":"ADMIN"}',
+      );
+      await pumpEventQueue();
+
+      expect(livenessResponses.riskTypes, isEmpty);
     });
 
     test('opens only allowlisted routes from remote and local taps', () async {
@@ -280,14 +329,15 @@ class FakeLocalNotifications implements LocalNotificationClient {
   int cancelAllCalls = 0;
   final shown = <ShownNotification>[];
   List<String>? events;
-  void Function(String? payload)? _onTap;
+  Future<void> Function(LocalNotificationResponse response)? _onResponse;
 
   @override
   Future<bool> initializeAndRequestPermission({
-    required void Function(String? payload) onTap,
+    required Future<void> Function(LocalNotificationResponse response)
+    onResponse,
   }) async {
     initializeCalls++;
-    _onTap = onTap;
+    _onResponse = onResponse;
     return permissionGranted;
   }
 
@@ -297,9 +347,16 @@ class FakeLocalNotifications implements LocalNotificationClient {
     required String? title,
     required String? body,
     required String? payload,
+    List<LocalNotificationAction> actions = const [],
   }) async {
     shown.add(
-      ShownNotification(id: id, title: title, body: body, payload: payload),
+      ShownNotification(
+        id: id,
+        title: title,
+        body: body,
+        payload: payload,
+        actions: actions,
+      ),
     );
   }
 
@@ -309,7 +366,26 @@ class FakeLocalNotifications implements LocalNotificationClient {
     events?.add('cancel-notifications');
   }
 
-  void tap(String? payload) => _onTap?.call(payload);
+  void tap(String? payload) => respond(payload: payload);
+
+  void respond({String? actionId, String? payload}) {
+    final onResponse = _onResponse;
+    if (onResponse == null) return;
+    unawaited(
+      onResponse(
+        LocalNotificationResponse(actionId: actionId, payload: payload),
+      ),
+    );
+  }
+}
+
+class FakeLivenessResponses implements LivenessCheckResponseClient {
+  final riskTypes = <String>[];
+
+  @override
+  Future<void> respond(String riskType) async {
+    riskTypes.add(riskType);
+  }
 }
 
 class FakeDevices implements PushDeviceClient {
@@ -350,12 +426,14 @@ class ShownNotification {
     required this.title,
     required this.body,
     required this.payload,
+    required this.actions,
   });
 
   final int id;
   final String? title;
   final String? body;
   final String? payload;
+  final List<LocalNotificationAction> actions;
 }
 
 Future<void> pumpEventQueue() async {
