@@ -4,9 +4,10 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/component_workspace/component_workspace_page.dart';
-import 'package:zhu_app/features/contacts/presentation/contacts_page.dart';
 import 'package:zhu_app/features/notifications/notification_providers.dart';
 import 'package:zhu_app/features/profile/presentation/profile_page.dart';
+import 'package:zhu_app/features/relationships/domain/relationship_kind.dart';
+import 'package:zhu_app/features/relationships/presentation/relationships_page.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({super.key});
@@ -38,6 +39,7 @@ class _AppNavigationScaffold extends StatefulWidget {
 
 class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
   var _selectedIndex = 0;
+  final _mountedTabs = <int>{0};
 
   @override
   Widget build(BuildContext context) {
@@ -45,18 +47,39 @@ class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
 
     return Scaffold(
       backgroundColor: colors.background,
-      body: IndexedStack(
-        index: _selectedIndex,
+      body: Stack(
         children: [
-          const ComponentWorkspacePage(),
-          const ContactsPage(),
-          ProfilePage(email: widget.email, onSignOut: widget.onSignOut),
+          if (_mountedTabs.contains(0))
+            Offstage(
+              offstage: _selectedIndex != 0,
+              child: const ComponentWorkspacePage(),
+            ),
+          if (_mountedTabs.contains(1))
+            Offstage(
+              offstage: _selectedIndex != 1,
+              child: const RelationshipsPage(kind: RelationshipKind.guardians),
+            ),
+          if (_mountedTabs.contains(2))
+            Offstage(
+              offstage: _selectedIndex != 2,
+              child: const RelationshipsPage(kind: RelationshipKind.guardees),
+            ),
+          if (_mountedTabs.contains(3))
+            Offstage(
+              offstage: _selectedIndex != 3,
+              child: ProfilePage(
+                email: widget.email,
+                onSignOut: widget.onSignOut,
+              ),
+            ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) => setState(() {
+          _selectedIndex = index;
+          _mountedTabs.add(index);
+        }),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -66,7 +89,12 @@ class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
           NavigationDestination(
             icon: Icon(Icons.people_outline),
             selectedIcon: Icon(Icons.people),
-            label: 'Contacts',
+            label: 'Guardians',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.supervisor_account_outlined),
+            selectedIcon: Icon(Icons.supervisor_account),
+            label: 'Guardees',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

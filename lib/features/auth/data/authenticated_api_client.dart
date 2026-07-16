@@ -17,12 +17,33 @@ class AuthenticatedApiClient {
     return _asJsonMap(response.data);
   }
 
+  Future<List<Map<String, dynamic>>> getJsonList(String path) async {
+    final response = await _dio.get<dynamic>(path);
+    return _asJsonList(response.data);
+  }
+
   Future<void> post(String path) async {
     await _dio.post<void>(path);
   }
 
-  Future<void> postJson(String path, Map<String, Object> data) async {
+  Future<void> postJson(String path, Map<String, Object?> data) async {
     await _dio.post<void>(path, data: data);
+  }
+
+  Future<Map<String, dynamic>> postJsonResponse(
+    String path,
+    Map<String, Object?> data,
+  ) async {
+    final response = await _dio.post<dynamic>(path, data: data);
+    return _asJsonMap(response.data);
+  }
+
+  Future<Map<String, dynamic>> patchJson(
+    String path,
+    Map<String, Object?> data,
+  ) async {
+    final response = await _dio.patch<dynamic>(path, data: data);
+    return _asJsonMap(response.data);
   }
 
   Future<void> delete(String path) async {
@@ -32,6 +53,13 @@ class AuthenticatedApiClient {
   Map<String, dynamic> _asJsonMap(Object? data) {
     if (data case final Map<dynamic, dynamic> map) {
       return Map<String, dynamic>.from(map);
+    }
+    throw const AuthFailure.unexpected();
+  }
+
+  List<Map<String, dynamic>> _asJsonList(Object? data) {
+    if (data case final List<dynamic> list) {
+      return list.map(_asJsonMap).toList(growable: false);
     }
     throw const AuthFailure.unexpected();
   }
