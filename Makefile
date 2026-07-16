@@ -3,13 +3,14 @@ DART := fvm dart
 DEVICE ?=
 RUN_ARGS := $(if $(DEVICE),-d "$(DEVICE)",)
 
-.PHONY: help setup fvm pub-get run devices doctor analyze test format generate clean
+.PHONY: help setup fvm pub-get run release-apk devices doctor analyze test format generate clean
 
 help:
 	@printf '%s\n' \
 		'make setup       Install pinned Flutter SDK and dependencies' \
 		'make run         Run app on available device' \
 		'make run DEVICE=<id>  Run app on a specific device' \
+		'make release-apk  Build signed APK for sharing' \
 		'make devices     List available devices' \
 		'make doctor      Show Flutter environment diagnostics' \
 		'make analyze     Run static analysis' \
@@ -28,6 +29,9 @@ pub-get:
 
 run:
 	$(FLUTTER) run $(RUN_ARGS)
+
+release-apk:
+	@bash scripts/build_release_apk.sh
 
 devices:
 	$(FLUTTER) devices

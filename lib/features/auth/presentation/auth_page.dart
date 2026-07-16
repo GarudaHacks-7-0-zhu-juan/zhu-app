@@ -96,8 +96,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                     ),
                     description: Text(
                       _isRegistering
-                          ? 'Create an account to access Zhu.'
-                          : 'Sign in to access Zhu.',
+                          ? 'Create an account to access ProtectMe.'
+                          : 'Sign in to access ProtectMe.',
                     ),
                     child: Padding(
                       padding: const EdgeInsets.only(top: AppSpacing.lg),
@@ -227,7 +227,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             child: Text(
                               _isRegistering
                                   ? 'Already have an account? Sign in'
-                                  : 'New to Zhu? Create account',
+                                  : 'New to ProtectMe? Create account',
                             ),
                           ),
                         ],

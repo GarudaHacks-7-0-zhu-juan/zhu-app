@@ -79,7 +79,7 @@ class AndroidLocalNotificationClient implements LocalNotificationClient {
   static const _channel = AndroidNotificationChannel(
     highImportanceChannelId,
     'High importance notifications',
-    description: 'Important notifications from Zhu',
+    description: 'Important notifications from ProtectMe',
     importance: Importance.high,
   );
 
@@ -131,7 +131,7 @@ class AndroidLocalNotificationClient implements LocalNotificationClient {
         android: AndroidNotificationDetails(
           highImportanceChannelId,
           'High importance notifications',
-          channelDescription: 'Important notifications from Zhu',
+          channelDescription: 'Important notifications from ProtectMe',
           importance: Importance.high,
           priority: Priority.high,
           icon: 'ic_stat_zhu_notification',
