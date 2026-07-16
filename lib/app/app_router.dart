@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
@@ -9,8 +10,11 @@ import 'package:zhu_app/features/permissions/domain/app_permission_requirement.d
 import 'package:zhu_app/features/permissions/presentation/app_permissions_page.dart';
 import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
 
+final appNavigatorKey = GlobalKey<NavigatorState>();
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
+    navigatorKey: appNavigatorKey,
     initialLocation: '/loading',
     redirect: (context, route) {
       final permissionState = ref.read(appPermissionsControllerProvider);

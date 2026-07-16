@@ -34,18 +34,13 @@ class NotificationCoordinator {
   StreamSubscription<void>? _tokenRefreshSubscription;
   StreamSubscription<NotificationMessage>? _foregroundSubscription;
   StreamSubscription<NotificationMessage>? _openedSubscription;
-  final Set<Future<void>> _pendingRegistrations = {};
-  final Set<Future<void>> _pendingDisplays = {};
   Future<void> _transition = Future.value();
-  Future<void>? _identityCleanup;
   bool _active = false;
-  bool _identityCleared = false;
   bool _logoutRequested = false;
   bool _desiredAuthenticated = false;
   bool _checkedInitialMessage = false;
   int _generation = 0;
   int _nextNotificationId = 1;
-  String? _installationId;
 
   Future<void> syncForSession({required bool authenticated}) {
     if (_logoutRequested && authenticated) return Future.value();
@@ -55,7 +50,7 @@ class NotificationCoordinator {
         if (!_desiredAuthenticated) return;
         await _start();
       } else {
-        await _stop(clearIdentity: true);
+        await _stop();
       }
     });
   }
@@ -65,46 +60,23 @@ class NotificationCoordinator {
     _desiredAuthenticated = false;
     return _queueTransition(() async {
       try {
-        await _unregisterForLogout();
-        await authSignOut();
+        await _deactivate();
       } finally {
-        await _stop(clearIdentity: true);
-        _logoutRequested = false;
+        try {
+          await authSignOut();
+        } finally {
+          _logoutRequested = false;
+        }
       }
     });
   }
 
-  Future<void> _unregisterForLogout() async {
-    if (!_isAndroid) return;
-    await _deactivate();
-    await Future.wait(_pendingRegistrations.toList());
-    try {
-      final installationId = _installationId ?? await _installations.getId();
-      await _devices.unregister(installationId);
-    } catch (error, stackTrace) {
-      _log('Could not unregister push device.', error, stackTrace);
-    }
+  Future<void> stop() {
+    _desiredAuthenticated = false;
+    return _queueTransition(_stop);
   }
 
-  Future<void> stop({bool clearIdentity = false}) {
-    if (clearIdentity) _desiredAuthenticated = false;
-    return _queueTransition(() => _stop(clearIdentity: clearIdentity));
-  }
-
-  Future<void> _stop({bool clearIdentity = false}) async {
-    await _deactivate();
-    await Future.wait(_pendingRegistrations.toList());
-    if (clearIdentity && _isAndroid) {
-      await Future.wait(_pendingDisplays.toList());
-      try {
-        await _localNotifications.cancelAll();
-      } catch (error, stackTrace) {
-        _log('Could not clear displayed notifications.', error, stackTrace);
-      }
-      await _clearLocalIdentity();
-    }
-    _installationId = null;
-  }
+  Future<void> _stop() => _deactivate();
 
   Future<void> _queueTransition(Future<void> Function() action) {
     final operation = _transition.then((_) => action());
@@ -113,30 +85,6 @@ class NotificationCoordinator {
       onError: (Object _, StackTrace _) {},
     );
     return operation;
-  }
-
-  Future<void> _clearLocalIdentity() {
-    if (_identityCleared) return Future.value();
-    return _identityCleanup ??= _performIdentityCleanup().whenComplete(
-      () => _identityCleanup = null,
-    );
-  }
-
-  Future<void> _performIdentityCleanup() async {
-    var succeeded = true;
-    try {
-      await _messaging.deactivate();
-    } catch (error, stackTrace) {
-      succeeded = false;
-      _log('Could not deactivate push messaging.', error, stackTrace);
-    }
-    try {
-      await _installations.delete();
-    } catch (error, stackTrace) {
-      succeeded = false;
-      _log('Could not delete Firebase installation.', error, stackTrace);
-    }
-    if (succeeded) _identityCleared = true;
   }
 
   Future<void> _deactivate() async {
@@ -163,7 +111,7 @@ class NotificationCoordinator {
           .initializeAndRequestPermission(onTap: _handleLocalTap);
       if (!_isCurrent(generation)) return;
       if (!permissionGranted) {
-        await _stop(clearIdentity: true);
+        await _stop();
         return;
       }
 
@@ -177,8 +125,8 @@ class NotificationCoordinator {
         _handleOpenedMessage,
       );
 
-      _identityCleared = false;
       await _messaging.activate();
+      _logInfo('Push messaging activated.');
       if (!_isCurrent(generation)) return;
       await _registerCurrentId();
       if (!_isCurrent(generation) || _checkedInitialMessage) return;
@@ -189,7 +137,7 @@ class NotificationCoordinator {
       }
     } catch (error, stackTrace) {
       _log('Could not start push notification sync.', error, stackTrace);
-      await _stop(clearIdentity: true);
+      await _stop();
     }
   }
 
@@ -197,21 +145,17 @@ class NotificationCoordinator {
 
   Future<void> _registerCurrentId() {
     if (!_active) return Future.value();
-    final generation = _generation;
-    final operation = _performRegistration(generation);
-    _pendingRegistrations.add(operation);
-    return operation.whenComplete(
-      () => _pendingRegistrations.remove(operation),
-    );
+    return _performRegistration(_generation);
   }
 
   Future<void> _performRegistration(int generation) async {
     for (var attempt = 0; attempt < 3; attempt++) {
       try {
         final installationId = await _installations.getId();
+        _logInfo('Firebase installation ID obtained.');
         if (!_isCurrent(generation)) return;
         await _devices.register(installationId);
-        if (_isCurrent(generation)) _installationId = installationId;
+        _logInfo('Push device registered.');
         return;
       } catch (error, stackTrace) {
         if (attempt == 2) {
@@ -229,9 +173,7 @@ class NotificationCoordinator {
     if (!_active || (message.title == null && message.body == null)) {
       return Future.value();
     }
-    final operation = _performForegroundDisplay(message);
-    _pendingDisplays.add(operation);
-    return operation.whenComplete(() => _pendingDisplays.remove(operation));
+    return _performForegroundDisplay(message);
   }
 
   Future<void> _performForegroundDisplay(NotificationMessage message) async {
@@ -281,6 +223,10 @@ class NotificationCoordinator {
       error: error.runtimeType,
       stackTrace: stackTrace,
     );
+  }
+
+  void _logInfo(String message) {
+    developer.log(message, name: 'zhu_app.notifications');
   }
 }
 
