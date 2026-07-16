@@ -13,5 +13,10 @@ coverage/
 # Local Android and IDE files
 android/.gradle/
 android/local.properties
+android/key.properties
+android/*.jks
 .idea/
 *.iml
+
+# Shareable release artifacts
+dist/

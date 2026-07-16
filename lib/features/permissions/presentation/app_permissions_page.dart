@@ -103,25 +103,26 @@ class _PermissionContent extends StatelessWidget {
     return switch (requirement) {
       AppPermissionRequirement.notificationDenied => const _PermissionCopy(
         title: 'Turn on notifications',
-        body: 'Notifications are required so Zhu App can keep you up to date.',
+        body:
+            'Notifications are required so ProtectMe can keep you up to date.',
         action: 'Allow notifications',
       ),
       AppPermissionRequirement.notificationPermanentlyDenied =>
         const _PermissionCopy(
           title: 'Notifications are off',
           body:
-              'Enable notifications for Zhu App in system settings to continue.',
+              'Enable notifications for ProtectMe in system settings to continue.',
           action: 'Open app settings',
         ),
       AppPermissionRequirement.locationDenied => const _PermissionCopy(
         title: 'Allow location access',
-        body: 'Location access is required to use Zhu App.',
+        body: 'Location access is required to use ProtectMe.',
         action: 'Allow location',
       ),
       AppPermissionRequirement.locationPermanentlyDenied => const _PermissionCopy(
         title: 'Location access is off',
         body:
-            'Enable location access for Zhu App in system settings to continue.',
+            'Enable location access for ProtectMe in system settings to continue.',
         action: 'Open app settings',
       ),
       AppPermissionRequirement.locationServicesDisabled =>
@@ -132,7 +133,7 @@ class _PermissionContent extends StatelessWidget {
         ),
       AppPermissionRequirement.ready || null => const _PermissionCopy(
         title: 'Checking permissions',
-        body: 'Zhu App needs notification and location access.',
+        body: 'ProtectMe needs notification and location access.',
         action: 'Try again',
       ),
     };
