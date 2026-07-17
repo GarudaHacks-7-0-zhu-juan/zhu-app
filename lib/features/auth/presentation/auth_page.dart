@@ -102,7 +102,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 child: AutofillGroup(
                   child: ShadCard(
                     title: Text(
-                      _isRegistering ? 'Create your workspace' : 'Welcome back',
+                      _isRegistering ? 'Create your account' : 'Welcome back',
                       style: theme.textTheme.h2,
                     ),
                     description: Text(
