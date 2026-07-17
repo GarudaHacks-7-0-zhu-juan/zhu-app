@@ -139,7 +139,7 @@ class _NotificationCard extends StatelessWidget {
       label: 'View alert for ${notification.guardeeLabel}',
       child: ShadCard(
         child: InkWell(
-          onTap: () => context.go('/guardees/${notification.guardeeId}'),
+          onTap: () => context.push('/guardees/${notification.guardeeId}'),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.xs),
             child: Row(

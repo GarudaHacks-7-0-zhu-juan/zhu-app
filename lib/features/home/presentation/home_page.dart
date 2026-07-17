@@ -46,7 +46,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(height: AppSpacing.xl),
             _ActionStrip(
               onGuardians: () => context.go('/guardians'),
-              onGuardianAlerts: () => context.go('/guardian-notifications'),
+              onGuardianAlerts: () => context.push('/guardian-notifications'),
               onSettings: () => context.go('/profile'),
             ),
             const SizedBox(height: AppSpacing.xxl),
