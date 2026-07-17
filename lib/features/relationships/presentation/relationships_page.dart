@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:zhu_app/design_system/tokens/app_colors.dart';
 import 'package:zhu_app/design_system/tokens/app_spacing.dart';
@@ -7,7 +8,6 @@ import 'package:zhu_app/design_system/theme/app_shad_theme.dart';
 import 'package:zhu_app/features/relationships/controller/relationships_controller.dart';
 import 'package:zhu_app/features/relationships/domain/relationship_kind.dart';
 import 'package:zhu_app/features/relationships/domain/relationship_models.dart';
-import 'package:zhu_app/features/relationships/presentation/guardee_detail_page.dart';
 
 class RelationshipsPage extends ConsumerStatefulWidget {
   const RelationshipsPage({super.key, required this.kind});
@@ -256,12 +256,41 @@ class _RelationshipsContent extends StatelessWidget {
           ],
         ],
         const SizedBox(height: AppSpacing.xl),
-        _SectionTitle(title: 'Confirmed ${kind.title.toLowerCase()}'),
+        if (kind == RelationshipKind.guardees &&
+            _needsAttention(data.accepted).isNotEmpty) ...[
+          const _SectionTitle(title: 'Needs attention'),
+          const SizedBox(height: AppSpacing.sm),
+          for (final user in _needsAttention(data.accepted)) ...[
+            _AcceptedCard(
+              user: user,
+              kind: kind,
+              onRemove: () => onRemove(user),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          const SizedBox(height: AppSpacing.md),
+        ],
+        _SectionTitle(
+          title:
+              kind == RelationshipKind.guardees &&
+                  _needsAttention(data.accepted).isNotEmpty
+              ? 'Other guardees'
+              : 'Confirmed ${kind.title.toLowerCase()}',
+        ),
         const SizedBox(height: AppSpacing.sm),
         if (data.accepted.isEmpty)
           _EmptyCard(kind: kind)
-        else
+        else if (kind != RelationshipKind.guardees)
           for (final user in data.accepted) ...[
+            _AcceptedCard(
+              user: user,
+              kind: kind,
+              onRemove: () => onRemove(user),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ]
+        else
+          for (final user in _otherGuardees(data.accepted)) ...[
             _AcceptedCard(
               user: user,
               kind: kind,
@@ -415,15 +444,15 @@ class _AcceptedCard extends StatelessWidget {
         children: [
           if (canViewDetail)
             InkWell(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => GuardeeDetailPage(guardee: user),
-                ),
-              ),
+              onTap: () => context.push('/guardees/${user.id}'),
               child: _UserSummary(user: user, trailing: Icons.chevron_right),
             )
           else
             _UserSummary(user: user),
+          if (canViewDetail) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _GuardeeStatusSummary(user: user),
+          ],
           const SizedBox(height: AppSpacing.md),
           ShadButton.outline(
             onPressed: onRemove,
@@ -431,6 +460,63 @@ class _AcceptedCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _GuardeeStatusSummary extends StatelessWidget {
+  const _GuardeeStatusSummary({required this.user});
+
+  final RelationshipUser user;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = ShadTheme.of(context);
+    final status = user.safety?.status;
+    final (label, color) = switch (status) {
+      GuardeeSafetyStatus.needsHelp => (
+        'NEEDS HELP',
+        theme.colorScheme.destructive,
+      ),
+      GuardeeSafetyStatus.checkInOverdue => (
+        'CHECK-IN OVERDUE',
+        theme.colorScheme.warning,
+      ),
+      GuardeeSafetyStatus.atRisk => ('AT RISK', theme.colorScheme.warning),
+      GuardeeSafetyStatus.protected => ('PROTECTED', theme.colorScheme.success),
+      GuardeeSafetyStatus.ok || null => ('OK', theme.colorScheme.draftingBlue),
+    };
+    final updatedAt = user.location?.updatedAt;
+    return Row(
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: .12),
+            borderRadius: const BorderRadius.all(AppRadius.small),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.xs,
+            ),
+            child: Text(
+              label,
+              style: theme.textTheme.technical.copyWith(color: color),
+            ),
+          ),
+        ),
+        if (updatedAt != null) ...[
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'Location ${_locationAge(updatedAt)}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.muted,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -552,6 +638,54 @@ class _RelationshipsError extends StatelessWidget {
       ),
     );
   }
+}
+
+List<RelationshipUser> _needsAttention(List<RelationshipUser> users) {
+  return users
+      .where((user) {
+        final status = user.safety?.status;
+        return status == GuardeeSafetyStatus.needsHelp ||
+            status == GuardeeSafetyStatus.checkInOverdue ||
+            status == GuardeeSafetyStatus.atRisk;
+      })
+      .toList(growable: false)
+    ..sort(_compareGuardeeUrgency);
+}
+
+List<RelationshipUser> _otherGuardees(List<RelationshipUser> users) {
+  return users
+      .where((user) {
+        final status = user.safety?.status;
+        return status != GuardeeSafetyStatus.needsHelp &&
+            status != GuardeeSafetyStatus.checkInOverdue &&
+            status != GuardeeSafetyStatus.atRisk;
+      })
+      .toList(growable: false)
+    ..sort(_compareGuardeeUrgency);
+}
+
+int _compareGuardeeUrgency(RelationshipUser left, RelationshipUser right) {
+  return _urgency(
+    left.safety?.status,
+  ).compareTo(_urgency(right.safety?.status));
+}
+
+int _urgency(GuardeeSafetyStatus? status) {
+  return switch (status) {
+    GuardeeSafetyStatus.needsHelp => 0,
+    GuardeeSafetyStatus.checkInOverdue => 1,
+    GuardeeSafetyStatus.atRisk => 2,
+    GuardeeSafetyStatus.protected => 3,
+    GuardeeSafetyStatus.ok || null => 4,
+  };
+}
+
+String _locationAge(DateTime updatedAt) {
+  final age = DateTime.now().difference(updatedAt.toLocal());
+  if (age.isNegative || age < const Duration(minutes: 1)) return 'updated now';
+  if (age < const Duration(hours: 1)) return '${age.inMinutes} min ago';
+  if (age < const Duration(days: 1)) return '${age.inHours} hr ago';
+  return '${age.inDays} d ago';
 }
 
 String _displayName(RelationshipUser user) {

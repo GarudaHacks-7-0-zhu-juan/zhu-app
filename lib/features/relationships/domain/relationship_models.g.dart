@@ -14,6 +14,9 @@ _RelationshipUser _$RelationshipUserFromJson(Map<String, dynamic> json) =>
       location: json['location'] == null
           ? null
           : GuardeeLocation.fromJson(json['location'] as Map<String, dynamic>),
+      safety: json['safety'] == null
+          ? null
+          : GuardeeSafety.fromJson(json['safety'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$RelationshipUserToJson(_RelationshipUser instance) =>
@@ -22,6 +25,7 @@ Map<String, dynamic> _$RelationshipUserToJson(_RelationshipUser instance) =>
       'email': instance.email,
       'phoneNumber': instance.phoneNumber,
       'location': instance.location,
+      'safety': instance.safety,
     };
 
 _RelationshipRequest _$RelationshipRequestFromJson(Map<String, dynamic> json) =>
@@ -55,6 +59,26 @@ Map<String, dynamic> _$GuardeeDetailToJson(_GuardeeDetail instance) =>
     <String, dynamic>{
       'guardee': instance.guardee,
       'location': instance.location,
+    };
+
+_GuardeeSafety _$GuardeeSafetyFromJson(Map<String, dynamic> json) =>
+    _GuardeeSafety(
+      status: guardeeSafetyStatusFromJson(json['status']),
+      riskType: json['riskType'] as String?,
+      riskLevel: json['riskLevel'] as String?,
+      trigger: json['trigger'] as String?,
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+    );
+
+Map<String, dynamic> _$GuardeeSafetyToJson(_GuardeeSafety instance) =>
+    <String, dynamic>{
+      'status': guardeeSafetyStatusToJson(instance.status),
+      'riskType': instance.riskType,
+      'riskLevel': instance.riskLevel,
+      'trigger': instance.trigger,
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
 
 _GuardeeLocation _$GuardeeLocationFromJson(Map<String, dynamic> json) =>

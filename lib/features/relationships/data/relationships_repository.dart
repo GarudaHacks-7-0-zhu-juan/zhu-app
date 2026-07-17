@@ -64,6 +64,23 @@ class RelationshipsRepository {
     if (user is! Map<dynamic, dynamic>) {
       throw const FormatException('Relationship response has no user summary.');
     }
-    return RelationshipUser.fromJson(Map<String, dynamic>.from(user));
+    final userJson = Map<String, dynamic>.from(user);
+    return RelationshipUser.fromJson({
+      ...userJson,
+      'location': userJson['location'] ?? json['location'],
+      'safety': _safetyFromResponse(json),
+    });
+  }
+
+  Map<String, dynamic>? _safetyFromResponse(Map<String, dynamic> json) {
+    final status = json['safetyStatus'];
+    if (status is! String) return null;
+    return {
+      'status': status,
+      'riskType': json['riskType'],
+      'riskLevel': json['riskLevel'],
+      'trigger': json['trigger'],
+      'updatedAt': json['updatedAt'],
+    };
   }
 }

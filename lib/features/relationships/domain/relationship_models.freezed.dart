@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RelationshipUser {
 
- String get id; String? get email; String? get phoneNumber; GuardeeLocation? get location;
+ String get id; String? get email; String? get phoneNumber; GuardeeLocation? get location; GuardeeSafety? get safety;
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RelationshipUserCopyWith<RelationshipUser> get copyWith => _$RelationshipUserCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.safety, safety) || other.safety == safety));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,phoneNumber,location);
+int get hashCode => Object.hash(runtimeType,id,email,phoneNumber,location,safety);
 
 @override
 String toString() {
-  return 'RelationshipUser(id: $id, email: $email, phoneNumber: $phoneNumber, location: $location)';
+  return 'RelationshipUser(id: $id, email: $email, phoneNumber: $phoneNumber, location: $location, safety: $safety)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $RelationshipUserCopyWith<$Res>  {
   factory $RelationshipUserCopyWith(RelationshipUser value, $Res Function(RelationshipUser) _then) = _$RelationshipUserCopyWithImpl;
 @useResult
 $Res call({
- String id, String? email, String? phoneNumber, GuardeeLocation? location
+ String id, String? email, String? phoneNumber, GuardeeLocation? location, GuardeeSafety? safety
 });
 
 
-$GuardeeLocationCopyWith<$Res>? get location;
+$GuardeeLocationCopyWith<$Res>? get location;$GuardeeSafetyCopyWith<$Res>? get safety;
 
 }
 /// @nodoc
@@ -65,13 +65,14 @@ class _$RelationshipUserCopyWithImpl<$Res>
 
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,Object? safety = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as GuardeeLocation?,
+as GuardeeLocation?,safety: freezed == safety ? _self.safety : safety // ignore: cast_nullable_to_non_nullable
+as GuardeeSafety?,
   ));
 }
 /// Create a copy of RelationshipUser
@@ -85,6 +86,18 @@ $GuardeeLocationCopyWith<$Res>? get location {
 
   return $GuardeeLocationCopyWith<$Res>(_self.location!, (value) {
     return _then(_self.copyWith(location: value));
+  });
+}/// Create a copy of RelationshipUser
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GuardeeSafetyCopyWith<$Res>? get safety {
+    if (_self.safety == null) {
+    return null;
+  }
+
+  return $GuardeeSafetyCopyWith<$Res>(_self.safety!, (value) {
+    return _then(_self.copyWith(safety: value));
   });
 }
 }
@@ -168,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RelationshipUser() when $default != null:
-return $default(_that.id,_that.email,_that.phoneNumber,_that.location);case _:
+return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
   return orElse();
 
 }
@@ -189,10 +202,10 @@ return $default(_that.id,_that.email,_that.phoneNumber,_that.location);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)  $default,) {final _that = this;
 switch (_that) {
 case _RelationshipUser():
-return $default(_that.id,_that.email,_that.phoneNumber,_that.location);case _:
+return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +222,10 @@ return $default(_that.id,_that.email,_that.phoneNumber,_that.location);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)?  $default,) {final _that = this;
 switch (_that) {
 case _RelationshipUser() when $default != null:
-return $default(_that.id,_that.email,_that.phoneNumber,_that.location);case _:
+return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
   return null;
 
 }
@@ -224,13 +237,14 @@ return $default(_that.id,_that.email,_that.phoneNumber,_that.location);case _:
 @JsonSerializable()
 
 class _RelationshipUser implements RelationshipUser {
-  const _RelationshipUser({required this.id, this.email, this.phoneNumber, this.location});
+  const _RelationshipUser({required this.id, this.email, this.phoneNumber, this.location, this.safety});
   factory _RelationshipUser.fromJson(Map<String, dynamic> json) => _$RelationshipUserFromJson(json);
 
 @override final  String id;
 @override final  String? email;
 @override final  String? phoneNumber;
 @override final  GuardeeLocation? location;
+@override final  GuardeeSafety? safety;
 
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
@@ -245,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.safety, safety) || other.safety == safety));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,phoneNumber,location);
+int get hashCode => Object.hash(runtimeType,id,email,phoneNumber,location,safety);
 
 @override
 String toString() {
-  return 'RelationshipUser(id: $id, email: $email, phoneNumber: $phoneNumber, location: $location)';
+  return 'RelationshipUser(id: $id, email: $email, phoneNumber: $phoneNumber, location: $location, safety: $safety)';
 }
 
 
@@ -265,11 +279,11 @@ abstract mixin class _$RelationshipUserCopyWith<$Res> implements $RelationshipUs
   factory _$RelationshipUserCopyWith(_RelationshipUser value, $Res Function(_RelationshipUser) _then) = __$RelationshipUserCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? email, String? phoneNumber, GuardeeLocation? location
+ String id, String? email, String? phoneNumber, GuardeeLocation? location, GuardeeSafety? safety
 });
 
 
-@override $GuardeeLocationCopyWith<$Res>? get location;
+@override $GuardeeLocationCopyWith<$Res>? get location;@override $GuardeeSafetyCopyWith<$Res>? get safety;
 
 }
 /// @nodoc
@@ -282,13 +296,14 @@ class __$RelationshipUserCopyWithImpl<$Res>
 
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,Object? safety = freezed,}) {
   return _then(_RelationshipUser(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
-as GuardeeLocation?,
+as GuardeeLocation?,safety: freezed == safety ? _self.safety : safety // ignore: cast_nullable_to_non_nullable
+as GuardeeSafety?,
   ));
 }
 
@@ -303,6 +318,18 @@ $GuardeeLocationCopyWith<$Res>? get location {
 
   return $GuardeeLocationCopyWith<$Res>(_self.location!, (value) {
     return _then(_self.copyWith(location: value));
+  });
+}/// Create a copy of RelationshipUser
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$GuardeeSafetyCopyWith<$Res>? get safety {
+    if (_self.safety == null) {
+    return null;
+  }
+
+  return $GuardeeSafetyCopyWith<$Res>(_self.safety!, (value) {
+    return _then(_self.copyWith(safety: value));
   });
 }
 }
@@ -1172,6 +1199,281 @@ $GuardeeLocationCopyWith<$Res>? get location {
     return _then(_self.copyWith(location: value));
   });
 }
+}
+
+
+/// @nodoc
+mixin _$GuardeeSafety {
+
+@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson) GuardeeSafetyStatus get status; String? get riskType; String? get riskLevel; String? get trigger; DateTime? get updatedAt;
+/// Create a copy of GuardeeSafety
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$GuardeeSafetyCopyWith<GuardeeSafety> get copyWith => _$GuardeeSafetyCopyWithImpl<GuardeeSafety>(this as GuardeeSafety, _$identity);
+
+  /// Serializes this GuardeeSafety to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GuardeeSafety&&(identical(other.status, status) || other.status == status)&&(identical(other.riskType, riskType) || other.riskType == riskType)&&(identical(other.riskLevel, riskLevel) || other.riskLevel == riskLevel)&&(identical(other.trigger, trigger) || other.trigger == trigger)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,status,riskType,riskLevel,trigger,updatedAt);
+
+@override
+String toString() {
+  return 'GuardeeSafety(status: $status, riskType: $riskType, riskLevel: $riskLevel, trigger: $trigger, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $GuardeeSafetyCopyWith<$Res>  {
+  factory $GuardeeSafetyCopyWith(GuardeeSafety value, $Res Function(GuardeeSafety) _then) = _$GuardeeSafetyCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson) GuardeeSafetyStatus status, String? riskType, String? riskLevel, String? trigger, DateTime? updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$GuardeeSafetyCopyWithImpl<$Res>
+    implements $GuardeeSafetyCopyWith<$Res> {
+  _$GuardeeSafetyCopyWithImpl(this._self, this._then);
+
+  final GuardeeSafety _self;
+  final $Res Function(GuardeeSafety) _then;
+
+/// Create a copy of GuardeeSafety
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? status = null,Object? riskType = freezed,Object? riskLevel = freezed,Object? trigger = freezed,Object? updatedAt = freezed,}) {
+  return _then(_self.copyWith(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as GuardeeSafetyStatus,riskType: freezed == riskType ? _self.riskType : riskType // ignore: cast_nullable_to_non_nullable
+as String?,riskLevel: freezed == riskLevel ? _self.riskLevel : riskLevel // ignore: cast_nullable_to_non_nullable
+as String?,trigger: freezed == trigger ? _self.trigger : trigger // ignore: cast_nullable_to_non_nullable
+as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [GuardeeSafety].
+extension GuardeeSafetyPatterns on GuardeeSafety {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _GuardeeSafety value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _GuardeeSafety() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _GuardeeSafety value)  $default,){
+final _that = this;
+switch (_that) {
+case _GuardeeSafety():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _GuardeeSafety value)?  $default,){
+final _that = this;
+switch (_that) {
+case _GuardeeSafety() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson)  GuardeeSafetyStatus status,  String? riskType,  String? riskLevel,  String? trigger,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _GuardeeSafety() when $default != null:
+return $default(_that.status,_that.riskType,_that.riskLevel,_that.trigger,_that.updatedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson)  GuardeeSafetyStatus status,  String? riskType,  String? riskLevel,  String? trigger,  DateTime? updatedAt)  $default,) {final _that = this;
+switch (_that) {
+case _GuardeeSafety():
+return $default(_that.status,_that.riskType,_that.riskLevel,_that.trigger,_that.updatedAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson)  GuardeeSafetyStatus status,  String? riskType,  String? riskLevel,  String? trigger,  DateTime? updatedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _GuardeeSafety() when $default != null:
+return $default(_that.status,_that.riskType,_that.riskLevel,_that.trigger,_that.updatedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _GuardeeSafety implements GuardeeSafety {
+  const _GuardeeSafety({@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson) required this.status, this.riskType, this.riskLevel, this.trigger, this.updatedAt});
+  factory _GuardeeSafety.fromJson(Map<String, dynamic> json) => _$GuardeeSafetyFromJson(json);
+
+@override@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson) final  GuardeeSafetyStatus status;
+@override final  String? riskType;
+@override final  String? riskLevel;
+@override final  String? trigger;
+@override final  DateTime? updatedAt;
+
+/// Create a copy of GuardeeSafety
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GuardeeSafetyCopyWith<_GuardeeSafety> get copyWith => __$GuardeeSafetyCopyWithImpl<_GuardeeSafety>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$GuardeeSafetyToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GuardeeSafety&&(identical(other.status, status) || other.status == status)&&(identical(other.riskType, riskType) || other.riskType == riskType)&&(identical(other.riskLevel, riskLevel) || other.riskLevel == riskLevel)&&(identical(other.trigger, trigger) || other.trigger == trigger)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,status,riskType,riskLevel,trigger,updatedAt);
+
+@override
+String toString() {
+  return 'GuardeeSafety(status: $status, riskType: $riskType, riskLevel: $riskLevel, trigger: $trigger, updatedAt: $updatedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$GuardeeSafetyCopyWith<$Res> implements $GuardeeSafetyCopyWith<$Res> {
+  factory _$GuardeeSafetyCopyWith(_GuardeeSafety value, $Res Function(_GuardeeSafety) _then) = __$GuardeeSafetyCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(fromJson: guardeeSafetyStatusFromJson, toJson: guardeeSafetyStatusToJson) GuardeeSafetyStatus status, String? riskType, String? riskLevel, String? trigger, DateTime? updatedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$GuardeeSafetyCopyWithImpl<$Res>
+    implements _$GuardeeSafetyCopyWith<$Res> {
+  __$GuardeeSafetyCopyWithImpl(this._self, this._then);
+
+  final _GuardeeSafety _self;
+  final $Res Function(_GuardeeSafety) _then;
+
+/// Create a copy of GuardeeSafety
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? status = null,Object? riskType = freezed,Object? riskLevel = freezed,Object? trigger = freezed,Object? updatedAt = freezed,}) {
+  return _then(_GuardeeSafety(
+status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as GuardeeSafetyStatus,riskType: freezed == riskType ? _self.riskType : riskType // ignore: cast_nullable_to_non_nullable
+as String?,riskLevel: freezed == riskLevel ? _self.riskLevel : riskLevel // ignore: cast_nullable_to_non_nullable
+as String?,trigger: freezed == trigger ? _self.trigger : trigger // ignore: cast_nullable_to_non_nullable
+as String?,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
 }
 
 

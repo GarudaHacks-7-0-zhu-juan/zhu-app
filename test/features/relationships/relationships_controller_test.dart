@@ -47,6 +47,11 @@ void main() {
         'location': {'latitude': '-6.2', 'longitude': '106.8'},
       },
       'location': null,
+      'safetyStatus': 'NEEDS_HELP',
+      'riskType': 'ACCIDENT',
+      'riskLevel': 'CRITICAL',
+      'trigger': 'FALL_DETECTED',
+      'updatedAt': '2026-07-17T10:00:00.000Z',
     });
 
     expect(request.counterpart.id, 'guardian-1');
@@ -54,6 +59,8 @@ void main() {
     expect(request.isPending, isTrue);
     expect(detail.guardee.location?.latitude, -6.2);
     expect(detail.location?.longitude, 106.8);
+    expect(detail.guardee.safety?.status, GuardeeSafetyStatus.needsHelp);
+    expect(detail.guardee.safety?.trigger, 'FALL_DETECTED');
   });
 }
 

@@ -9,6 +9,7 @@ import 'package:zhu_app/features/permissions/controller/app_permissions_controll
 import 'package:zhu_app/features/permissions/domain/app_permission_requirement.dart';
 import 'package:zhu_app/features/permissions/presentation/app_permissions_page.dart';
 import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
+import 'package:zhu_app/features/relationships/presentation/guardee_detail_page.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -25,10 +26,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final session = ref.read(authSessionControllerProvider);
       final location = route.matchedLocation;
       final isAuthRoute = location == '/login' || location == '/register';
+      final isGuardeeDetailRoute =
+          route.uri.path.startsWith('/guardees/') &&
+          (route.pathParameters['guardeeId']?.isNotEmpty ?? false);
 
       return switch (session) {
         InitializingAuthSessionState() =>
           location == '/loading' ? null : '/loading',
+        AuthenticatedAuthSessionState() when isGuardeeDetailRoute => null,
         AuthenticatedAuthSessionState() => switch (location) {
           '/workspace' ||
           '/guardians' ||
@@ -69,6 +74,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/guardees',
         builder: (context, state) => const AppShell(selectedIndex: 2),
+      ),
+      GoRoute(
+        path: '/guardees/:guardeeId',
+        builder: (context, state) =>
+            GuardeeDetailPage(guardeeId: state.pathParameters['guardeeId']!),
       ),
       GoRoute(
         path: '/profile',
