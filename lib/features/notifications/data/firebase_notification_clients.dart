@@ -6,6 +6,9 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:zhu_app/features/notifications/domain/notification_clients.dart';
 
 const highImportanceChannelId = 'high_importance_channel';
+const highRiskAreaNotificationId = 1001;
+const disasterNotificationId = 1002;
+const accidentNotificationId = 1003;
 
 Future<void> showBackgroundRemoteNotification(
   RemoteMessage remoteMessage,
@@ -21,7 +24,7 @@ Future<void> showBackgroundRemoteNotification(
   final notifications = AndroidLocalNotificationClient();
   await notifications.initializeForBackground();
   await notifications.show(
-    id: 1001,
+    id: _backgroundNotificationId(riskType),
     title: message.title,
     body: message.body,
     payload: jsonEncode({
@@ -39,6 +42,19 @@ Future<void> showBackgroundRemoteNotification(
       ),
     ],
   );
+}
+
+int _backgroundNotificationId(String riskType) {
+  switch (riskType) {
+    case highRiskAreaRiskType:
+      return highRiskAreaNotificationId;
+    case disasterRiskType:
+      return disasterNotificationId;
+    case accidentRiskType:
+      return accidentNotificationId;
+    default:
+      throw ArgumentError.value(riskType, 'riskType');
+  }
 }
 
 class FirebasePushMessagingClient implements PushMessagingClient {

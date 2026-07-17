@@ -79,7 +79,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Simulate fall detection?'),
         content: const Text(
-          'This demo submits a fall event to Zhu. The backend processes it asynchronously.',
+          'This demo immediately checks on you and alerts accepted guardians.',
         ),
         actions: [
           TextButton(
@@ -100,7 +100,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       await ref.read(safetyRepositoryProvider).reportFall();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fall event submitted for processing.')),
+          const SnackBar(
+            content: Text('Fall event submitted. Safety alerts sent.'),
+          ),
         );
       }
     } catch (_) {

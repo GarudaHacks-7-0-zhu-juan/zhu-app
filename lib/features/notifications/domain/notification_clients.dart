@@ -21,9 +21,14 @@ class LocalNotificationResponse {
 }
 
 const livenessCheckEventType = 'LIVENESS_CHECK';
+const accidentRiskType = 'ACCIDENT';
 const highRiskAreaRiskType = 'HIGH_RISK_AREA';
 const disasterRiskType = 'DISASTER';
-const supportedLivenessRiskTypes = {highRiskAreaRiskType, disasterRiskType};
+const supportedLivenessRiskTypes = {
+  accidentRiskType,
+  highRiskAreaRiskType,
+  disasterRiskType,
+};
 const livenessCheckYesActionId = 'liveness_check_yes';
 const livenessCheckNoActionId = 'liveness_check_no';
 
