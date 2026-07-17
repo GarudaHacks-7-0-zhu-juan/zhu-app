@@ -44,8 +44,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(height: AppSpacing.xl),
             _StatusGrid(protection: protection, guardians: guardians),
             const SizedBox(height: AppSpacing.xl),
-            _ActionStrip(
-              onGuardians: () => context.go('/guardians'),
+            _SafetyShortcuts(
               onGuardianAlerts: () => context.push('/guardian-notifications'),
               onSettings: () => context.go('/profile'),
             ),
@@ -314,36 +313,126 @@ class _StatusCard extends StatelessWidget {
   }
 }
 
-class _ActionStrip extends StatelessWidget {
-  const _ActionStrip({
-    required this.onGuardians,
+class _SafetyShortcuts extends StatelessWidget {
+  const _SafetyShortcuts({
     required this.onGuardianAlerts,
     required this.onSettings,
   });
 
-  final VoidCallback onGuardians;
   final VoidCallback onGuardianAlerts;
   final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: AppSpacing.sm,
-      runSpacing: AppSpacing.sm,
-      children: [
-        ShadButton.outline(
-          onPressed: onGuardians,
-          child: const Text('Manage guardians'),
+    final theme = ShadTheme.of(context);
+    final alerts = _SafetyShortcut(
+      icon: Icons.notifications_active_outlined,
+      title: 'Guardian alerts',
+      description: 'Review safety alerts from people you support.',
+      color: theme.colorScheme.warning,
+      semanticLabel: 'Open Guardian alerts',
+      onTap: onGuardianAlerts,
+    );
+    final protectMe = _SafetyShortcut(
+      icon: Icons.shield_outlined,
+      title: 'Protect Me settings',
+      description: 'Manage your automated safety check-ins.',
+      color: theme.colorScheme.draftingBlue,
+      semanticLabel: 'Open Protect Me settings',
+      onTap: onSettings,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 520) {
+          return Column(
+            children: [
+              alerts,
+              const SizedBox(height: AppSpacing.sm),
+              protectMe,
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: alerts),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: protectMe),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SafetyShortcut extends StatelessWidget {
+  const _SafetyShortcut({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.semanticLabel,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+  final Color color;
+  final String semanticLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = ShadTheme.of(context);
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: ShadCard(
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: const BorderRadius.all(AppRadius.medium),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            borderRadius: const BorderRadius.all(AppRadius.medium),
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 88),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xs),
+                child: Row(
+                  children: [
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: .12),
+                        borderRadius: const BorderRadius.all(AppRadius.medium),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Icon(icon, color: color),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title, style: theme.textTheme.large),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(description, style: theme.textTheme.muted),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Icon(Icons.chevron_right),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
-        ShadButton.outline(
-          onPressed: onGuardianAlerts,
-          child: const Text('Guardian alerts'),
-        ),
-        ShadButton.outline(
-          onPressed: onSettings,
-          child: const Text('Protect Me settings'),
-        ),
-      ],
+      ),
     );
   }
 }
