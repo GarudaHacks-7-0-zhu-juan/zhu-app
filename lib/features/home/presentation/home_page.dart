@@ -46,6 +46,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(height: AppSpacing.xl),
             _ActionStrip(
               onGuardians: () => context.go('/guardians'),
+              onGuardianAlerts: () => context.push('/guardian-notifications'),
               onSettings: () => context.go('/profile'),
             ),
             const SizedBox(height: AppSpacing.xxl),
@@ -314,9 +315,14 @@ class _StatusCard extends StatelessWidget {
 }
 
 class _ActionStrip extends StatelessWidget {
-  const _ActionStrip({required this.onGuardians, required this.onSettings});
+  const _ActionStrip({
+    required this.onGuardians,
+    required this.onGuardianAlerts,
+    required this.onSettings,
+  });
 
   final VoidCallback onGuardians;
+  final VoidCallback onGuardianAlerts;
   final VoidCallback onSettings;
 
   @override
@@ -328,6 +334,10 @@ class _ActionStrip extends StatelessWidget {
         ShadButton.outline(
           onPressed: onGuardians,
           child: const Text('Manage guardians'),
+        ),
+        ShadButton.outline(
+          onPressed: onGuardianAlerts,
+          child: const Text('Guardian alerts'),
         ),
         ShadButton.outline(
           onPressed: onSettings,

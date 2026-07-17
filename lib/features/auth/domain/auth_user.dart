@@ -8,6 +8,7 @@ abstract class AuthUser with _$AuthUser {
   const factory AuthUser({
     @JsonKey(name: 'sub') required String id,
     required String email,
+    String? displayName,
   }) = _AuthUser;
 
   factory AuthUser.fromJson(Map<String, dynamic> json) =>

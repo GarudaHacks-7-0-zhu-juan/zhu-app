@@ -689,5 +689,5 @@ String _locationAge(DateTime updatedAt) {
 }
 
 String _displayName(RelationshipUser user) {
-  return user.email ?? user.phoneNumber ?? 'Unknown user';
+  return user.displayName ?? user.email ?? user.phoneNumber ?? 'Unknown user';
 }

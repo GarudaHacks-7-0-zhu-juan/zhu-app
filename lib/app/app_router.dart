@@ -9,6 +9,7 @@ import 'package:zhu_app/features/permissions/controller/app_permissions_controll
 import 'package:zhu_app/features/permissions/domain/app_permission_requirement.dart';
 import 'package:zhu_app/features/permissions/presentation/app_permissions_page.dart';
 import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
+import 'package:zhu_app/features/guardian_notifications/presentation/guardian_notifications_page.dart';
 import 'package:zhu_app/features/relationships/presentation/guardee_detail_page.dart';
 
 final appNavigatorKey = GlobalKey<NavigatorState>();
@@ -39,7 +40,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           '/guardians' ||
           '/guardees' ||
           '/profile' ||
+          '/guardian-notifications' ||
           '/liveness-check' => null,
+          _ when location.startsWith('/guardees/') => null,
           _ => '/workspace',
         },
         UnauthenticatedAuthSessionState() ||
@@ -87,6 +90,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/liveness-check',
         builder: (context, state) => const AppShell(selectedIndex: 3),
+      ),
+      GoRoute(
+        path: '/guardian-notifications',
+        builder: (context, state) => const GuardianNotificationsPage(),
       ),
     ],
   );

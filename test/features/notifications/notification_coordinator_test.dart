@@ -288,6 +288,22 @@ void main() {
       },
     );
 
+    test('uses a valid guardee route when the alert has no identifier', () {
+      expect(
+        NotificationCoordinator.guardianRiskRouteFromData({
+          'eventType': guardianRiskAlertEventType,
+          'route': '/guardees/route-guardee-id',
+        }),
+        '/guardees/route-guardee-id',
+      );
+      expect(
+        NotificationCoordinator.guardianRiskRouteFromData({
+          'eventType': guardianRiskAlertEventType,
+        }),
+        isNull,
+      );
+    });
+
     test(
       'rejects guardian alert identifiers that could change route paths',
       () {

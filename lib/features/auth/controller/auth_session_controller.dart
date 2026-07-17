@@ -36,10 +36,16 @@ class AuthSessionController extends _$AuthSessionController {
     required String email,
     required String password,
     required String phoneNumber,
+    String? displayName,
   }) async {
     final user = await ref
         .read(authRepositoryProvider)
-        .register(email: email, password: password, phoneNumber: phoneNumber);
+        .register(
+          email: email,
+          password: password,
+          phoneNumber: phoneNumber,
+          displayName: displayName,
+        );
     state = AuthSessionState.authenticated(user);
   }
 

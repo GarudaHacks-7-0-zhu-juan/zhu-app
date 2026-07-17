@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RelationshipUser {
 
- String get id; String? get email; String? get phoneNumber; GuardeeLocation? get location; GuardeeSafety? get safety;
+ String get id; String? get displayName; String? get email; String? get phoneNumber; GuardeeLocation? get location; GuardeeSafety? get safety;
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $RelationshipUserCopyWith<RelationshipUser> get copyWith => _$RelationshipUserCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.safety, safety) || other.safety == safety));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.safety, safety) || other.safety == safety));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,phoneNumber,location,safety);
+int get hashCode => Object.hash(runtimeType,id,displayName,email,phoneNumber,location,safety);
 
 @override
 String toString() {
-  return 'RelationshipUser(id: $id, email: $email, phoneNumber: $phoneNumber, location: $location, safety: $safety)';
+  return 'RelationshipUser(id: $id, displayName: $displayName, email: $email, phoneNumber: $phoneNumber, location: $location, safety: $safety)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $RelationshipUserCopyWith<$Res>  {
   factory $RelationshipUserCopyWith(RelationshipUser value, $Res Function(RelationshipUser) _then) = _$RelationshipUserCopyWithImpl;
 @useResult
 $Res call({
- String id, String? email, String? phoneNumber, GuardeeLocation? location, GuardeeSafety? safety
+ String id, String? displayName, String? email, String? phoneNumber, GuardeeLocation? location, GuardeeSafety? safety
 });
 
 
@@ -65,10 +65,11 @@ class _$RelationshipUserCopyWithImpl<$Res>
 
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,Object? safety = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? displayName = freezed,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,Object? safety = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as GuardeeLocation?,safety: freezed == safety ? _self.safety : safety // ignore: cast_nullable_to_non_nullable
@@ -181,10 +182,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? displayName,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RelationshipUser() when $default != null:
-return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
+return $default(_that.id,_that.displayName,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
   return orElse();
 
 }
@@ -202,10 +203,10 @@ return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safe
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? displayName,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)  $default,) {final _that = this;
 switch (_that) {
 case _RelationshipUser():
-return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
+return $default(_that.id,_that.displayName,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -222,10 +223,10 @@ return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safe
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? displayName,  String? email,  String? phoneNumber,  GuardeeLocation? location,  GuardeeSafety? safety)?  $default,) {final _that = this;
 switch (_that) {
 case _RelationshipUser() when $default != null:
-return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
+return $default(_that.id,_that.displayName,_that.email,_that.phoneNumber,_that.location,_that.safety);case _:
   return null;
 
 }
@@ -237,10 +238,11 @@ return $default(_that.id,_that.email,_that.phoneNumber,_that.location,_that.safe
 @JsonSerializable()
 
 class _RelationshipUser implements RelationshipUser {
-  const _RelationshipUser({required this.id, this.email, this.phoneNumber, this.location, this.safety});
+  const _RelationshipUser({required this.id, this.displayName, this.email, this.phoneNumber, this.location, this.safety});
   factory _RelationshipUser.fromJson(Map<String, dynamic> json) => _$RelationshipUserFromJson(json);
 
 @override final  String id;
+@override final  String? displayName;
 @override final  String? email;
 @override final  String? phoneNumber;
 @override final  GuardeeLocation? location;
@@ -259,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.safety, safety) || other.safety == safety));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RelationshipUser&&(identical(other.id, id) || other.id == id)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phoneNumber, phoneNumber) || other.phoneNumber == phoneNumber)&&(identical(other.location, location) || other.location == location)&&(identical(other.safety, safety) || other.safety == safety));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,email,phoneNumber,location,safety);
+int get hashCode => Object.hash(runtimeType,id,displayName,email,phoneNumber,location,safety);
 
 @override
 String toString() {
-  return 'RelationshipUser(id: $id, email: $email, phoneNumber: $phoneNumber, location: $location, safety: $safety)';
+  return 'RelationshipUser(id: $id, displayName: $displayName, email: $email, phoneNumber: $phoneNumber, location: $location, safety: $safety)';
 }
 
 
@@ -279,7 +281,7 @@ abstract mixin class _$RelationshipUserCopyWith<$Res> implements $RelationshipUs
   factory _$RelationshipUserCopyWith(_RelationshipUser value, $Res Function(_RelationshipUser) _then) = __$RelationshipUserCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? email, String? phoneNumber, GuardeeLocation? location, GuardeeSafety? safety
+ String id, String? displayName, String? email, String? phoneNumber, GuardeeLocation? location, GuardeeSafety? safety
 });
 
 
@@ -296,10 +298,11 @@ class __$RelationshipUserCopyWithImpl<$Res>
 
 /// Create a copy of RelationshipUser
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,Object? safety = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? displayName = freezed,Object? email = freezed,Object? phoneNumber = freezed,Object? location = freezed,Object? safety = freezed,}) {
   return _then(_RelationshipUser(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,displayName: freezed == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
+as String?,email: freezed == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
 as String?,phoneNumber: freezed == phoneNumber ? _self.phoneNumber : phoneNumber // ignore: cast_nullable_to_non_nullable
 as String?,location: freezed == location ? _self.location : location // ignore: cast_nullable_to_non_nullable
 as GuardeeLocation?,safety: freezed == safety ? _self.safety : safety // ignore: cast_nullable_to_non_nullable

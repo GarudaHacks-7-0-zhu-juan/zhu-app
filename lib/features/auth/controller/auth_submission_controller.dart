@@ -27,12 +27,18 @@ class AuthSubmissionController extends _$AuthSubmissionController {
     required String email,
     required String password,
     required String phoneNumber,
+    String? displayName,
   }) async {
     state = const AuthSubmissionState(isSubmitting: true);
     try {
       await ref
           .read(authSessionControllerProvider.notifier)
-          .register(email: email, password: password, phoneNumber: phoneNumber);
+          .register(
+            email: email,
+            password: password,
+            phoneNumber: phoneNumber,
+            displayName: displayName,
+          );
       ref.read(authDraftEmailProvider.notifier).clear();
       state = const AuthSubmissionState();
     } on AuthFailure catch (failure) {

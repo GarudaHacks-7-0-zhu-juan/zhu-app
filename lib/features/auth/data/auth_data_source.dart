@@ -14,10 +14,16 @@ class AuthDataSource {
     required String email,
     required String password,
     required String phoneNumber,
+    String? displayName,
   }) {
     return _tokensRequest(
       '/auth/register',
-      data: {'email': email, 'password': password, 'phoneNumber': phoneNumber},
+      data: {
+        'email': email,
+        'password': password,
+        'phoneNumber': phoneNumber,
+        'displayName': ?displayName,
+      },
       failureForStatus: (status) => status == 409
           ? const AuthFailure.accountAlreadyRegistered()
           : const AuthFailure.unexpected(),

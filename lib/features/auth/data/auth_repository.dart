@@ -23,11 +23,13 @@ class AuthRepository {
     required String email,
     required String password,
     required String phoneNumber,
+    String? displayName,
   }) async {
     final tokens = await _dataSource.register(
       email: email,
       password: password,
       phoneNumber: phoneNumber,
+      displayName: displayName,
     );
     return _completeAuthentication(tokens);
   }

@@ -9,6 +9,8 @@ import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/auth/domain/auth_user.dart';
 import 'package:zhu_app/features/navigation/presentation/app_shell.dart';
+import 'package:zhu_app/features/profile/controller/my_profile_controller.dart';
+import 'package:zhu_app/features/profile/domain/user_profile.dart';
 import 'package:zhu_app/features/profile/presentation/profile_page.dart';
 import 'package:zhu_app/features/relationships/presentation/relationships_page.dart';
 
@@ -22,6 +24,15 @@ void main() {
           authSessionControllerProvider.overrideWithValue(
             const AuthSessionState.authenticated(
               AuthUser(id: 'user-1', email: 'zhu@example.com'),
+            ),
+          ),
+          myProfileProvider.overrideWith(
+            (_) async => UserProfile(
+              id: 'user-1',
+              email: 'zhu@example.com',
+              phoneNumber: '+628123456789',
+              createdAt: DateTime.utc(2026),
+              updatedAt: DateTime.utc(2026),
             ),
           ),
         ],
@@ -57,7 +68,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('zhu@example.com'), findsOneWidget);
+    expect(find.text('zhu@example.com'), findsNWidgets(2));
   });
 
   testWidgets('profile disables sign out while request is pending', (
@@ -71,7 +82,6 @@ void main() {
         child: ShadApp(
           theme: AppShadTheme.light,
           home: ProfilePage(
-            email: 'zhu@example.com',
             onSignOut: () {
               signOutCalls++;
               return signOut.future;
