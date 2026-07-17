@@ -28,52 +28,66 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final profile = ref.watch(myProfileProvider);
     final statuses = ref.watch(protectMeControllerProvider);
     return SafeArea(
-      child: ListView(
-        padding: AppSpacing.screen.copyWith(
-          top: AppSpacing.lg,
-          bottom: AppSpacing.xxxl,
+      child: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: AppSpacing.screen.copyWith(
+            top: AppSpacing.lg,
+            bottom: AppSpacing.xxxl,
+          ),
+          children: [
+            Text('ACCOUNT / SAFETY', style: theme.textTheme.technical),
+            const SizedBox(height: AppSpacing.xs),
+            Text('My Profile', style: theme.textTheme.h1),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Your account details and safety check-ins.',
+              style: theme.textTheme.muted,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            _ProtectMeCard(
+              statuses: statuses,
+              updating: _updating,
+              onRetry: () => ref.invalidate(protectMeControllerProvider),
+              onChanged: _setProtectMeEnabled,
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            switch (profile) {
+              AsyncData(:final value) => _ProfileDetails(profile: value),
+              AsyncError() => _ProfileError(
+                onRetry: () => ref.invalidate(myProfileProvider),
+              ),
+              _ => const Center(child: CircularProgressIndicator()),
+            },
+            const SizedBox(height: AppSpacing.xxxl),
+            SizedBox(
+              width: double.infinity,
+              child: ShadButton.outline(
+                onPressed: _isSigningOut ? null : _signOut,
+                child: _isSigningOut
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Sign out'),
+              ),
+            ),
+          ],
         ),
-        children: [
-          Text('ACCOUNT / SAFETY', style: theme.textTheme.technical),
-          const SizedBox(height: AppSpacing.xs),
-          Text('My Profile', style: theme.textTheme.h1),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'Your account details and safety check-ins.',
-            style: theme.textTheme.muted,
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          _ProtectMeCard(
-            statuses: statuses,
-            updating: _updating,
-            onRetry: () => ref.invalidate(protectMeControllerProvider),
-            onChanged: _setProtectMeEnabled,
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          switch (profile) {
-            AsyncData(:final value) => _ProfileDetails(profile: value),
-            AsyncError() => _ProfileError(
-              onRetry: () => ref.invalidate(myProfileProvider),
-            ),
-            _ => const Center(child: CircularProgressIndicator()),
-          },
-          const SizedBox(height: AppSpacing.xxxl),
-          SizedBox(
-            width: double.infinity,
-            child: ShadButton.outline(
-              onPressed: _isSigningOut ? null : _signOut,
-              child: _isSigningOut
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Sign out'),
-            ),
-          ),
-        ],
       ),
     );
+  }
+
+  Future<void> _refresh() async {
+    ref
+      ..invalidate(myProfileProvider)
+      ..invalidate(protectMeControllerProvider);
+    await Future.wait([
+      ref.read(myProfileProvider.future),
+      ref.read(protectMeControllerProvider.future),
+    ]);
   }
 
   Future<void> _setProtectMeEnabled(
