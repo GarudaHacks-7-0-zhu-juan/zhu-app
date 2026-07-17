@@ -34,7 +34,7 @@ void main() {
     expect(repository.loadCalls, 2);
   });
 
-  test('parses counterpart aliases and embedded guardee location', () {
+  test('parses counterpart aliases and Prisma Decimal guardee locations', () {
     final request = RelationshipRequest.fromJson({
       'guardian': {'id': 'guardian-1', 'email': 'guardian@example.com'},
       'initiatorRole': 'GUARDIAN',
@@ -44,7 +44,7 @@ void main() {
       'guardee': {
         'id': 'guardee-1',
         'email': 'guardee@example.com',
-        'location': {'latitude': -6.2, 'longitude': 106.8},
+        'location': {'latitude': '-6.2', 'longitude': '106.8'},
       },
       'location': null,
     });
