@@ -173,6 +173,33 @@ void main() {
       ]);
     });
 
+    test('submits an Accident safety response independently', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
+
+      messaging.foregroundController.add(
+        const NotificationMessage(
+          title: 'Fall detected',
+          body: 'We detected a fall. Are you safe?',
+          data: {
+            'eventType': livenessCheckEventType,
+            'riskType': accidentRiskType,
+          },
+        ),
+      );
+      await pumpEventQueue();
+
+      localNotifications.respond(
+        actionId: livenessCheckYesActionId,
+        payload: localNotifications.shown.single.payload,
+      );
+      await pumpEventQueue();
+
+      expect(livenessResponses.responses, [
+        (riskType: accidentRiskType, isOkay: true),
+      ]);
+    });
+
     test('submits false for no liveness action', () async {
       final coordinator = createCoordinator();
       await coordinator.syncForSession(authenticated: true);
