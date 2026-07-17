@@ -21,6 +21,7 @@ class LocalNotificationResponse {
 }
 
 const livenessCheckEventType = 'LIVENESS_CHECK';
+const guardianRiskAlertEventType = 'GUARDIAN_RISK_ALERT';
 const accidentRiskType = 'ACCIDENT';
 const highRiskAreaRiskType = 'HIGH_RISK_AREA';
 const disasterRiskType = 'DISASTER';

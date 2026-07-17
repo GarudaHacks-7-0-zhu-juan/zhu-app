@@ -11,6 +11,7 @@ abstract class RelationshipUser with _$RelationshipUser {
     String? email,
     String? phoneNumber,
     GuardeeLocation? location,
+    GuardeeSafety? safety,
   }) = _RelationshipUser;
 
   factory RelationshipUser.fromJson(Map<String, dynamic> json) =>
@@ -106,11 +107,59 @@ abstract class GuardeeDetail with _$GuardeeDetail {
 
   static Map<String, dynamic> _withEmbeddedLocation(Map<String, dynamic> json) {
     final guardee = json['guardee'];
-    final embeddedLocation = guardee is Map<dynamic, dynamic>
-        ? guardee['location']
-        : null;
-    return {...json, 'location': json['location'] ?? embeddedLocation};
+    if (guardee is! Map<dynamic, dynamic>) return json;
+    final guardeeJson = Map<String, dynamic>.from(guardee);
+    return {
+      ...json,
+      'guardee': {
+        ...guardeeJson,
+        'location': json['location'] ?? guardeeJson['location'],
+        'safety': _safetyFromResponse(json),
+      },
+      'location': json['location'] ?? guardeeJson['location'],
+    };
   }
+}
+
+enum GuardeeSafetyStatus { needsHelp, checkInOverdue, atRisk, protected, ok }
+
+GuardeeSafetyStatus guardeeSafetyStatusFromJson(Object? value) {
+  return switch (value) {
+    'NEEDS_HELP' => GuardeeSafetyStatus.needsHelp,
+    'CHECK_IN_OVERDUE' => GuardeeSafetyStatus.checkInOverdue,
+    'AT_RISK' => GuardeeSafetyStatus.atRisk,
+    'PROTECTED' => GuardeeSafetyStatus.protected,
+    'OK' => GuardeeSafetyStatus.ok,
+    _ => throw FormatException('Unknown guardee safety status: $value'),
+  };
+}
+
+String guardeeSafetyStatusToJson(GuardeeSafetyStatus value) {
+  return switch (value) {
+    GuardeeSafetyStatus.needsHelp => 'NEEDS_HELP',
+    GuardeeSafetyStatus.checkInOverdue => 'CHECK_IN_OVERDUE',
+    GuardeeSafetyStatus.atRisk => 'AT_RISK',
+    GuardeeSafetyStatus.protected => 'PROTECTED',
+    GuardeeSafetyStatus.ok => 'OK',
+  };
+}
+
+@freezed
+abstract class GuardeeSafety with _$GuardeeSafety {
+  const factory GuardeeSafety({
+    @JsonKey(
+      fromJson: guardeeSafetyStatusFromJson,
+      toJson: guardeeSafetyStatusToJson,
+    )
+    required GuardeeSafetyStatus status,
+    String? riskType,
+    String? riskLevel,
+    String? trigger,
+    DateTime? updatedAt,
+  }) = _GuardeeSafety;
+
+  factory GuardeeSafety.fromJson(Map<String, dynamic> json) =>
+      _$GuardeeSafetyFromJson(json);
 }
 
 @freezed
@@ -133,4 +182,16 @@ double? coordinateFromJson(Object? value) {
     if (coordinate != null) return coordinate;
   }
   throw FormatException('Invalid coordinate: $value');
+}
+
+Map<String, dynamic>? _safetyFromResponse(Map<String, dynamic> json) {
+  final status = json['safetyStatus'];
+  if (status is! String) return null;
+  return {
+    'status': status,
+    'riskType': json['riskType'],
+    'riskLevel': json['riskLevel'],
+    'trigger': json['trigger'],
+    'updatedAt': json['updatedAt'],
+  };
 }

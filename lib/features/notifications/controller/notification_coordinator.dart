@@ -186,11 +186,16 @@ class NotificationCoordinator {
   Future<void> _performForegroundDisplay(NotificationMessage message) async {
     final route = routeFromData(message.data);
     final riskType = riskTypeFromData(message.data);
+    final guardeeId = guardeeIdFromData(message.data);
     final isLivenessCheck =
         message.data['eventType'] == livenessCheckEventType && riskType != null;
     final payload = <String, dynamic>{
       'route': ?route,
       if (isLivenessCheck) 'eventType': livenessCheckEventType,
+      if (guardeeId != null) ...{
+        'eventType': guardianRiskAlertEventType,
+        'guardeeId': guardeeId,
+      },
       'riskType': ?riskType,
     };
     try {
@@ -246,8 +251,20 @@ class NotificationCoordinator {
   }
 
   static String? routeFromData(Map<String, dynamic> data) {
+    final guardeeId = guardeeIdFromData(data);
+    if (guardeeId != null) return '/guardees/${Uri.encodeComponent(guardeeId)}';
     final route = data['route'];
     return route is String && allowedRoutes.contains(route) ? route : null;
+  }
+
+  static String? guardeeIdFromData(Map<String, dynamic> data) {
+    final guardeeId = data['guardeeId'];
+    if (data['eventType'] != guardianRiskAlertEventType ||
+        guardeeId is! String ||
+        !RegExp(r'^[A-Za-z0-9-]+$').hasMatch(guardeeId)) {
+      return null;
+    }
+    return guardeeId;
   }
 
   static String? riskTypeFromData(Map<String, dynamic> data) {

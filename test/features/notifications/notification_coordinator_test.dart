@@ -258,6 +258,50 @@ void main() {
     });
 
     test(
+      'opens the targeted guardee detail from guardian risk alerts',
+      () async {
+        final coordinator = createCoordinator();
+        await coordinator.syncForSession(authenticated: true);
+        const alert = NotificationMessage(
+          title: 'Guardee safety alert',
+          body: 'guardee@example.com may need your attention.',
+          data: {
+            'eventType': guardianRiskAlertEventType,
+            'guardeeId': 'guardee-1',
+            'riskType': disasterRiskType,
+          },
+        );
+
+        messaging.openedController.add(alert);
+        messaging.foregroundController.add(alert);
+        await pumpEventQueue();
+        localNotifications.tap(localNotifications.shown.single.payload);
+        await pumpEventQueue();
+
+        expect(openedRoutes, ['/guardees/guardee-1', '/guardees/guardee-1']);
+        expect(jsonDecode(localNotifications.shown.single.payload!), {
+          'route': '/guardees/guardee-1',
+          'eventType': guardianRiskAlertEventType,
+          'guardeeId': 'guardee-1',
+          'riskType': disasterRiskType,
+        });
+      },
+    );
+
+    test(
+      'rejects guardian alert identifiers that could change route paths',
+      () {
+        expect(
+          NotificationCoordinator.routeFromData({
+            'eventType': guardianRiskAlertEventType,
+            'guardeeId': '../admin',
+          }),
+          isNull,
+        );
+      },
+    );
+
+    test(
       'forced session loss stops listeners without clearing identity',
       () async {
         final coordinator = createCoordinator();
