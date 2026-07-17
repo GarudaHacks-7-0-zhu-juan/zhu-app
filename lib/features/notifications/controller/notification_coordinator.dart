@@ -27,6 +27,7 @@ class NotificationCoordinator {
     '/guardees',
     '/profile',
     '/liveness-check',
+    '/guardian-notifications',
   };
 
   final bool _isAndroid;
@@ -223,7 +224,8 @@ class NotificationCoordinator {
   }
 
   void _handleOpenedMessage(NotificationMessage message) {
-    final route = routeFromData(message.data);
+    final route =
+        guardianRiskRouteFromData(message.data) ?? routeFromData(message.data);
     if (route != null) _openRoute(route);
   }
 
@@ -246,7 +248,9 @@ class NotificationCoordinator {
       return;
     }
 
-    final route = routeFromPayload(response.payload);
+    final route =
+        guardianRiskRouteFromPayload(response.payload) ??
+        routeFromPayload(response.payload);
     if (route != null) _openRoute(route);
   }
 
@@ -254,7 +258,10 @@ class NotificationCoordinator {
     final guardeeId = guardeeIdFromData(data);
     if (guardeeId != null) return '/guardees/${Uri.encodeComponent(guardeeId)}';
     final route = data['route'];
-    return route is String && allowedRoutes.contains(route) ? route : null;
+    return route is String &&
+            (allowedRoutes.contains(route) || _isGuardeeRoute(route))
+        ? route
+        : null;
   }
 
   static String? guardeeIdFromData(Map<String, dynamic> data) {
@@ -267,6 +274,25 @@ class NotificationCoordinator {
     return guardeeId;
   }
 
+  static String? guardianRiskRouteFromData(Map<String, dynamic> data) {
+    if (data['eventType'] != guardianRiskAlertEventType) return null;
+    final guardeeId = guardeeIdFromData(data);
+    if (guardeeId != null) return '/guardees/${Uri.encodeComponent(guardeeId)}';
+    final route = data['route'];
+    return route is String && _isGuardeeRoute(route) ? route : null;
+  }
+
+  static bool _isGuardeeRoute(String route) {
+    final segments = route.split('/');
+    return segments.length == 3 &&
+        segments[0].isEmpty &&
+        segments[1] == 'guardees' &&
+        _isRouteSegment(segments[2]);
+  }
+
+  static bool _isRouteSegment(String value) =>
+      value.isNotEmpty && !value.contains('/') && !value.contains('?');
+
   static String? riskTypeFromData(Map<String, dynamic> data) {
     final riskType = data['riskType'];
     return riskType is String && supportedLivenessRiskTypes.contains(riskType)
@@ -277,6 +303,11 @@ class NotificationCoordinator {
   static String? routeFromPayload(String? payload) {
     final decoded = _decodePayload(payload);
     return decoded == null ? null : routeFromData(decoded);
+  }
+
+  static String? guardianRiskRouteFromPayload(String? payload) {
+    final decoded = _decodePayload(payload);
+    return decoded == null ? null : guardianRiskRouteFromData(decoded);
   }
 
   static String? riskTypeFromPayload(String? payload) {

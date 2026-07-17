@@ -9,6 +9,7 @@ part of 'relationship_models.dart';
 _RelationshipUser _$RelationshipUserFromJson(Map<String, dynamic> json) =>
     _RelationshipUser(
       id: json['id'] as String,
+      displayName: json['displayName'] as String?,
       email: json['email'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       location: json['location'] == null
@@ -22,6 +23,7 @@ _RelationshipUser _$RelationshipUserFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$RelationshipUserToJson(_RelationshipUser instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'displayName': instance.displayName,
       'email': instance.email,
       'phoneNumber': instance.phoneNumber,
       'location': instance.location,

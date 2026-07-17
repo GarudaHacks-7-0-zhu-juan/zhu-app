@@ -8,6 +8,7 @@ part 'relationship_models.g.dart';
 abstract class RelationshipUser with _$RelationshipUser {
   const factory RelationshipUser({
     required String id,
+    String? displayName,
     String? email,
     String? phoneNumber,
     GuardeeLocation? location,

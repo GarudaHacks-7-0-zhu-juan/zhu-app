@@ -21,15 +21,18 @@ class AuthPage extends ConsumerStatefulWidget {
 
 class _AuthPageState extends ConsumerState<AuthPage> {
   final _emailController = TextEditingController();
+  final _displayNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmationController = TextEditingController();
   final _emailFocusNode = FocusNode();
+  final _displayNameFocusNode = FocusNode();
   final _phoneFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final _confirmationFocusNode = FocusNode();
 
   String? _emailError;
+  String? _displayNameError;
   String? _phoneError;
   String? _passwordError;
   String? _confirmationError;
@@ -62,10 +65,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   @override
   void dispose() {
     _emailController.dispose();
+    _displayNameController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmationController.dispose();
     _emailFocusNode.dispose();
+    _displayNameFocusNode.dispose();
     _phoneFocusNode.dispose();
     _passwordFocusNode.dispose();
     _confirmationFocusNode.dispose();
@@ -134,6 +139,22 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             ),
                           ),
                           if (_isRegistering) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            _InputField(
+                              label: 'Display name (optional)',
+                              error: _displayNameError,
+                              input: ShadInput(
+                                controller: _displayNameController,
+                                focusNode: _displayNameFocusNode,
+                                enabled: !isSubmitting,
+                                textInputAction: TextInputAction.next,
+                                autofillHints: const [AutofillHints.name],
+                                placeholder: const Text('How people know you'),
+                                onSubmitted: (_) =>
+                                    _phoneFocusNode.requestFocus(),
+                                onChanged: (_) => _clearDisplayNameError(),
+                              ),
+                            ),
                             const SizedBox(height: AppSpacing.md),
                             _InputField(
                               label: 'Phone number',
@@ -275,6 +296,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (!_validate()) return;
 
     final email = _emailController.text.trim();
+    final displayName = _displayNameController.text.trim();
     final phoneNumber = _phoneController.text.trim();
     final password = _passwordController.text;
     final controller = ref.read(authSubmissionControllerProvider.notifier);
@@ -283,6 +305,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         email: email,
         password: password,
         phoneNumber: phoneNumber,
+        displayName: displayName.isEmpty ? null : displayName,
       );
     } else {
       controller.signIn(email: email, password: password);
@@ -291,6 +314,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   bool _validate() {
     final email = _emailController.text.trim();
+    final displayName = _displayNameController.text.trim();
     final phoneNumber = _phoneController.text.trim();
     final password = _passwordController.text;
     final confirmation = _confirmationController.text;
@@ -300,6 +324,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         : null;
     final passwordError = password.length < 8
         ? 'Password must contain at least 8 characters.'
+        : null;
+    final displayNameError =
+        _isRegistering &&
+            displayName.isNotEmpty &&
+            (displayName.length > 80 || displayName.trim().isEmpty)
+        ? 'Display name must be 1 to 80 non-whitespace characters.'
         : null;
     final phoneError =
         _isRegistering && !RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(phoneNumber)
@@ -311,6 +341,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
     setState(() {
       _emailError = emailError;
+      _displayNameError = displayNameError;
       _phoneError = phoneError;
       _passwordError = passwordError;
       _confirmationError = confirmationError;
@@ -318,6 +349,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
     if (emailError != null) {
       _emailFocusNode.requestFocus();
+      return false;
+    }
+    if (displayNameError != null) {
+      _displayNameFocusNode.requestFocus();
       return false;
     }
     if (phoneError != null) {
@@ -337,6 +372,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   void _clearEmailError() {
     if (_emailError != null) setState(() => _emailError = null);
+  }
+
+  void _clearDisplayNameError() {
+    if (_displayNameError != null) {
+      setState(() => _displayNameError = null);
+    }
   }
 
   void _clearPhoneError() {

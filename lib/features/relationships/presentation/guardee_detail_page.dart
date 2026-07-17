@@ -30,9 +30,31 @@ class GuardeeDetailPage extends ConsumerWidget {
             },
           ),
           AsyncError() => Center(
-            child: ShadButton.outline(
-              onPressed: () => ref.invalidate(guardeeDetailProvider(guardeeId)),
-              child: const Text('Retry'),
+            child: Padding(
+              padding: AppSpacing.screen,
+              child: ShadCard(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Guardee unavailable',
+                      style: ShadTheme.of(context).textTheme.h3,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'This relationship may no longer be available. Check your connection and try again.',
+                      style: ShadTheme.of(context).textTheme.muted,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    ShadButton.outline(
+                      onPressed: () =>
+                          ref.invalidate(guardeeDetailProvider(guardeeId)),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           _ => const Center(child: CircularProgressIndicator()),
@@ -312,7 +334,10 @@ class _SafetyPresentation {
 }
 
 String _displayName(RelationshipUser user) {
-  return user.email ?? user.phoneNumber ?? 'Unknown guardee';
+  return user.displayName ??
+      user.email ??
+      user.phoneNumber ??
+      'Unknown guardee';
 }
 
 String _safetyDetail(GuardeeSafety safety) {

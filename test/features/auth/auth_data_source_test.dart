@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:zhu_app/features/auth/data/auth_data_source.dart';
 
 void main() {
-  test('register sends the required phone number', () async {
+  test('register sends the optional display name', () async {
     late RequestOptions request;
     final dio = Dio()
       ..interceptors.add(
@@ -28,6 +28,7 @@ void main() {
       email: 'user@example.com',
       password: 'password123',
       phoneNumber: '+628123456789',
+      displayName: 'Ada Lovelace',
     );
 
     expect(request.path, '/auth/register');
@@ -35,6 +36,7 @@ void main() {
       'email': 'user@example.com',
       'password': 'password123',
       'phoneNumber': '+628123456789',
+      'displayName': 'Ada Lovelace',
     });
   });
 }
