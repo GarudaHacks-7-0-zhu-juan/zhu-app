@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
-import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
 import 'package:zhu_app/features/home/presentation/home_page.dart';
 import 'package:zhu_app/features/notifications/notification_providers.dart';
 import 'package:zhu_app/features/profile/presentation/profile_page.dart';
@@ -17,14 +15,7 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final session = ref.watch(authSessionControllerProvider);
-    final email = switch (session) {
-      AuthenticatedAuthSessionState(:final user) => user.email,
-      _ => '',
-    };
-
     return _AppNavigationScaffold(
-      email: email,
       selectedIndex: selectedIndex,
       onSignOut: () => ref.read(sessionLogoutCoordinatorProvider).signOut(),
     );
@@ -33,12 +24,10 @@ class AppShell extends ConsumerWidget {
 
 class _AppNavigationScaffold extends StatefulWidget {
   const _AppNavigationScaffold({
-    required this.email,
     required this.selectedIndex,
     required this.onSignOut,
   });
 
-  final String email;
   final int selectedIndex;
   final Future<void> Function() onSignOut;
 
@@ -90,10 +79,7 @@ class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
           if (_mountedTabs.contains(3))
             Offstage(
               offstage: _selectedIndex != 3,
-              child: ProfilePage(
-                email: widget.email,
-                onSignOut: widget.onSignOut,
-              ),
+              child: ProfilePage(onSignOut: widget.onSignOut),
             ),
         ],
       ),
