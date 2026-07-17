@@ -11,6 +11,7 @@ import 'package:zhu_app/features/locations/data/location_repository.dart';
 import 'package:zhu_app/features/locations/domain/location_clients.dart';
 import 'package:zhu_app/features/permissions/controller/app_permissions_controller.dart';
 import 'package:zhu_app/features/permissions/domain/app_permission_requirement.dart';
+import 'package:zhu_app/features/safety/controller/protect_me_controller.dart';
 
 final locationClientProvider = Provider<LocationClient>(
   (ref) => GeolocatorLocationClient(),
@@ -24,6 +25,9 @@ final locationPollingCoordinatorProvider = Provider<LocationPollingCoordinator>(
   (ref) => LocationPollingCoordinator(
     locations: ref.watch(locationClientProvider),
     reporter: ref.watch(locationReporterProvider),
+    onSafetyStatus: ref
+        .read(protectMeControllerProvider.notifier)
+        .applyLocationStatus,
   ),
 );
 

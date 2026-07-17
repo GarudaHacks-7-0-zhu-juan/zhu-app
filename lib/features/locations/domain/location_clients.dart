@@ -3,7 +3,7 @@ abstract interface class LocationClient {
 }
 
 abstract interface class LocationReporter {
-  Future<void> report(LocationPoint point);
+  Future<LocationSafetyStatus> report(LocationPoint point);
 }
 
 class LocationPoint {
@@ -21,4 +21,26 @@ class LocationPoint {
 
   @override
   int get hashCode => Object.hash(latitude, longitude);
+}
+
+class LocationSafetyStatus {
+  const LocationSafetyStatus({
+    required this.riskLevel,
+    required this.activationMode,
+  });
+
+  final String riskLevel;
+  final String activationMode;
+
+  factory LocationSafetyStatus.fromJson(Map<String, dynamic> json) {
+    final riskLevel = json['riskLevel'];
+    final activationMode = json['livenessCheckActivationMode'];
+    if (riskLevel is! String || activationMode is! String) {
+      throw const FormatException('Invalid location safety status.');
+    }
+    return LocationSafetyStatus(
+      riskLevel: riskLevel,
+      activationMode: activationMode,
+    );
+  }
 }

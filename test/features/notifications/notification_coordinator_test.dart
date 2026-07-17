@@ -146,6 +146,33 @@ void main() {
       ]);
     });
 
+    test('submits a Disaster liveness response independently', () async {
+      final coordinator = createCoordinator();
+      await coordinator.syncForSession(authenticated: true);
+
+      messaging.foregroundController.add(
+        const NotificationMessage(
+          title: 'Are you safe?',
+          body: 'Confirm that you are safe.',
+          data: {
+            'eventType': livenessCheckEventType,
+            'riskType': disasterRiskType,
+          },
+        ),
+      );
+      await pumpEventQueue();
+
+      localNotifications.respond(
+        actionId: livenessCheckYesActionId,
+        payload: localNotifications.shown.single.payload,
+      );
+      await pumpEventQueue();
+
+      expect(livenessResponses.responses, [
+        (riskType: disasterRiskType, isOkay: true),
+      ]);
+    });
+
     test('submits false for no liveness action', () async {
       final coordinator = createCoordinator();
       await coordinator.syncForSession(authenticated: true);

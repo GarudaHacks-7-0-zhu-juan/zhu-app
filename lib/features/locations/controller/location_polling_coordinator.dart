@@ -7,15 +7,18 @@ class LocationPollingCoordinator {
   LocationPollingCoordinator({
     required LocationClient locations,
     required LocationReporter reporter,
+    void Function(LocationSafetyStatus status)? onSafetyStatus,
     DateTime Function()? clock,
   }) : _locations = locations,
        _reporter = reporter,
+       _onSafetyStatus = onSafetyStatus,
        _clock = clock ?? DateTime.now;
 
   static const reportingInterval = Duration(seconds: 20);
 
   final LocationClient _locations;
   final LocationReporter _reporter;
+  final void Function(LocationSafetyStatus status)? _onSafetyStatus;
   final DateTime Function() _clock;
 
   StreamSubscription<LocationPoint>? _positionSubscription;
@@ -61,7 +64,8 @@ class LocationPollingCoordinator {
   Future<void> _report(LocationPoint point) async {
     _sending = true;
     try {
-      await _reporter.report(point);
+      final status = await _reporter.report(point);
+      _onSafetyStatus?.call(status);
     } catch (error, stackTrace) {
       developer.log(
         'Could not report current location.',

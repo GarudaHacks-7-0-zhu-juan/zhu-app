@@ -11,8 +11,10 @@ Future<void> showBackgroundRemoteNotification(
   RemoteMessage remoteMessage,
 ) async {
   final message = _toNotificationMessage(remoteMessage);
+  final riskType = message.data['riskType'];
   if (message.data['eventType'] != livenessCheckEventType ||
-      message.data['riskType'] != highRiskAreaRiskType) {
+      riskType is! String ||
+      !supportedLivenessRiskTypes.contains(riskType)) {
     return;
   }
 
@@ -24,7 +26,7 @@ Future<void> showBackgroundRemoteNotification(
     body: message.body,
     payload: jsonEncode({
       'eventType': livenessCheckEventType,
-      'riskType': highRiskAreaRiskType,
+      'riskType': riskType,
     }),
     actions: const [
       LocalNotificationAction(
