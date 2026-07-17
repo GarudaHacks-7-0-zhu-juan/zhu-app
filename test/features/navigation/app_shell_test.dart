@@ -32,15 +32,30 @@ void main() {
     expect(find.text('Guardians'), findsOneWidget);
     expect(find.byType(RelationshipsPage), findsNothing);
 
-    await tester.tap(find.byIcon(Icons.people_outline));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(Icons.people_outline),
+      ),
+    );
     await tester.pump();
     expect(find.byType(RelationshipsPage), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.supervisor_account_outlined));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(Icons.supervisor_account_outlined),
+      ),
+    );
     await tester.pump();
     expect(find.byType(RelationshipsPage), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.person_outline));
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(Icons.person_outline),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('zhu@example.com'), findsOneWidget);
   });
@@ -52,14 +67,16 @@ void main() {
     var signOutCalls = 0;
 
     await tester.pumpWidget(
-      ShadApp(
-        theme: AppShadTheme.light,
-        home: ProfilePage(
-          email: 'zhu@example.com',
-          onSignOut: () {
-            signOutCalls++;
-            return signOut.future;
-          },
+      ProviderScope(
+        child: ShadApp(
+          theme: AppShadTheme.light,
+          home: ProfilePage(
+            email: 'zhu@example.com',
+            onSignOut: () {
+              signOutCalls++;
+              return signOut.future;
+            },
+          ),
         ),
       ),
     );

@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:zhu_app/features/auth/controller/auth_session_controller.dart';
 import 'package:zhu_app/features/auth/domain/auth_session_state.dart';
-import 'package:zhu_app/features/component_workspace/component_workspace_page.dart';
+import 'package:zhu_app/features/home/presentation/home_page.dart';
 import 'package:zhu_app/features/notifications/notification_providers.dart';
 import 'package:zhu_app/features/profile/presentation/profile_page.dart';
 import 'package:zhu_app/features/relationships/domain/relationship_kind.dart';
 import 'package:zhu_app/features/relationships/presentation/relationships_page.dart';
 
 class AppShell extends ConsumerWidget {
-  const AppShell({super.key});
+  const AppShell({super.key, this.selectedIndex = 0});
+
+  final int selectedIndex;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,15 +25,21 @@ class AppShell extends ConsumerWidget {
 
     return _AppNavigationScaffold(
       email: email,
+      selectedIndex: selectedIndex,
       onSignOut: () => ref.read(sessionLogoutCoordinatorProvider).signOut(),
     );
   }
 }
 
 class _AppNavigationScaffold extends StatefulWidget {
-  const _AppNavigationScaffold({required this.email, required this.onSignOut});
+  const _AppNavigationScaffold({
+    required this.email,
+    required this.selectedIndex,
+    required this.onSignOut,
+  });
 
   final String email;
+  final int selectedIndex;
   final Future<void> Function() onSignOut;
 
   @override
@@ -38,8 +47,25 @@ class _AppNavigationScaffold extends StatefulWidget {
 }
 
 class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
-  var _selectedIndex = 0;
-  final _mountedTabs = <int>{0};
+  late int _selectedIndex;
+  late final Set<int> _mountedTabs;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+    _mountedTabs = {widget.selectedIndex};
+  }
+
+  @override
+  void didUpdateWidget(covariant _AppNavigationScaffold oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedIndex == widget.selectedIndex) return;
+    setState(() {
+      _selectedIndex = widget.selectedIndex;
+      _mountedTabs.add(widget.selectedIndex);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +76,7 @@ class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
       body: Stack(
         children: [
           if (_mountedTabs.contains(0))
-            Offstage(
-              offstage: _selectedIndex != 0,
-              child: const ComponentWorkspacePage(),
-            ),
+            Offstage(offstage: _selectedIndex != 0, child: const HomePage()),
           if (_mountedTabs.contains(1))
             Offstage(
               offstage: _selectedIndex != 1,
@@ -76,10 +99,7 @@ class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) => setState(() {
-          _selectedIndex = index;
-          _mountedTabs.add(index);
-        }),
+        onDestinationSelected: _selectDestination,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -104,5 +124,23 @@ class _AppNavigationScaffoldState extends State<_AppNavigationScaffold> {
         ],
       ),
     );
+  }
+
+  void _selectDestination(int index) {
+    final route = switch (index) {
+      0 => '/workspace',
+      1 => '/guardians',
+      2 => '/guardees',
+      _ => '/profile',
+    };
+    final router = GoRouter.maybeOf(context);
+    if (router != null) {
+      context.go(route);
+      return;
+    }
+    setState(() {
+      _selectedIndex = index;
+      _mountedTabs.add(index);
+    });
   }
 }

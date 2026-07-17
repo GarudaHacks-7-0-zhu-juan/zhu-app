@@ -21,7 +21,13 @@ class NotificationCoordinator {
        _openRoute = openRoute,
        _delay = delay ?? ((duration) => Future<void>.delayed(duration));
 
-  static const allowedRoute = '/workspace';
+  static const allowedRoutes = {
+    '/workspace',
+    '/guardians',
+    '/guardees',
+    '/profile',
+    '/liveness-check',
+  };
 
   final bool _isAndroid;
   final PushMessagingClient _messaging;
@@ -241,12 +247,14 @@ class NotificationCoordinator {
 
   static String? routeFromData(Map<String, dynamic> data) {
     final route = data['route'];
-    return route == allowedRoute ? allowedRoute : null;
+    return route is String && allowedRoutes.contains(route) ? route : null;
   }
 
   static String? riskTypeFromData(Map<String, dynamic> data) {
     final riskType = data['riskType'];
-    return riskType == highRiskAreaRiskType ? highRiskAreaRiskType : null;
+    return riskType is String && supportedLivenessRiskTypes.contains(riskType)
+        ? riskType
+        : null;
   }
 
   static String? routeFromPayload(String? payload) {

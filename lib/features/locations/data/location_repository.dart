@@ -7,10 +7,15 @@ class LocationRepository implements LocationReporter {
   final AuthenticatedApiClient _client;
 
   @override
-  Future<void> report(LocationPoint point) {
-    return _client.postJson('/locations', {
+  Future<LocationSafetyStatus> report(LocationPoint point) async {
+    final json = await _client.postJsonResponse('/locations', {
       'latitude': point.latitude,
       'longitude': point.longitude,
     });
+    final risk = json['risk'];
+    if (risk is! Map<dynamic, dynamic>) {
+      throw const FormatException('Location response has no risk status.');
+    }
+    return LocationSafetyStatus.fromJson(Map<String, dynamic>.from(risk));
   }
 }

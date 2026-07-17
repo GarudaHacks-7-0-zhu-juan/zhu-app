@@ -95,13 +95,14 @@ class FakeLocationReporter implements LocationReporter {
   int failuresRemaining = 0;
 
   @override
-  Future<void> report(LocationPoint point) async {
+  Future<LocationSafetyStatus> report(LocationPoint point) async {
     attempts++;
     if (failuresRemaining > 0) {
       failuresRemaining--;
       throw StateError('network unavailable');
     }
     points.add(point);
+    return const LocationSafetyStatus(riskLevel: 'NONE', activationMode: 'OFF');
   }
 }
 

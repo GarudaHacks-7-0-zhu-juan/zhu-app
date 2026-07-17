@@ -29,8 +29,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return switch (session) {
         InitializingAuthSessionState() =>
           location == '/loading' ? null : '/loading',
-        AuthenticatedAuthSessionState() =>
-          location == '/workspace' ? null : '/workspace',
+        AuthenticatedAuthSessionState() => switch (location) {
+          '/workspace' ||
+          '/guardians' ||
+          '/guardees' ||
+          '/profile' ||
+          '/liveness-check' => null,
+          _ => '/workspace',
+        },
         UnauthenticatedAuthSessionState() ||
         UnavailableAuthSessionState() => isAuthRoute ? null : '/login',
       };
@@ -55,6 +61,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/workspace',
         builder: (context, state) => const AppShell(),
+      ),
+      GoRoute(
+        path: '/guardians',
+        builder: (context, state) => const AppShell(selectedIndex: 1),
+      ),
+      GoRoute(
+        path: '/guardees',
+        builder: (context, state) => const AppShell(selectedIndex: 2),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const AppShell(selectedIndex: 3),
+      ),
+      GoRoute(
+        path: '/liveness-check',
+        builder: (context, state) => const AppShell(selectedIndex: 3),
       ),
     ],
   );
