@@ -59,8 +59,8 @@ Map<String, dynamic> _$GuardeeDetailToJson(_GuardeeDetail instance) =>
 
 _GuardeeLocation _$GuardeeLocationFromJson(Map<String, dynamic> json) =>
     _GuardeeLocation(
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: coordinateFromJson(json['latitude']),
+      longitude: coordinateFromJson(json['longitude']),
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.parse(json['updatedAt'] as String),

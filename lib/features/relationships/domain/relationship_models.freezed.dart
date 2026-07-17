@@ -1178,7 +1178,7 @@ $GuardeeLocationCopyWith<$Res>? get location {
 /// @nodoc
 mixin _$GuardeeLocation {
 
- double? get latitude; double? get longitude; DateTime? get updatedAt;
+@JsonKey(fromJson: coordinateFromJson) double? get latitude;@JsonKey(fromJson: coordinateFromJson) double? get longitude; DateTime? get updatedAt;
 /// Create a copy of GuardeeLocation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1211,7 +1211,7 @@ abstract mixin class $GuardeeLocationCopyWith<$Res>  {
   factory $GuardeeLocationCopyWith(GuardeeLocation value, $Res Function(GuardeeLocation) _then) = _$GuardeeLocationCopyWithImpl;
 @useResult
 $Res call({
- double? latitude, double? longitude, DateTime? updatedAt
+@JsonKey(fromJson: coordinateFromJson) double? latitude,@JsonKey(fromJson: coordinateFromJson) double? longitude, DateTime? updatedAt
 });
 
 
@@ -1318,7 +1318,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double? latitude,  double? longitude,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(fromJson: coordinateFromJson)  double? latitude, @JsonKey(fromJson: coordinateFromJson)  double? longitude,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GuardeeLocation() when $default != null:
 return $default(_that.latitude,_that.longitude,_that.updatedAt);case _:
@@ -1339,7 +1339,7 @@ return $default(_that.latitude,_that.longitude,_that.updatedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double? latitude,  double? longitude,  DateTime? updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(fromJson: coordinateFromJson)  double? latitude, @JsonKey(fromJson: coordinateFromJson)  double? longitude,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _GuardeeLocation():
 return $default(_that.latitude,_that.longitude,_that.updatedAt);case _:
@@ -1359,7 +1359,7 @@ return $default(_that.latitude,_that.longitude,_that.updatedAt);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double? latitude,  double? longitude,  DateTime? updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(fromJson: coordinateFromJson)  double? latitude, @JsonKey(fromJson: coordinateFromJson)  double? longitude,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _GuardeeLocation() when $default != null:
 return $default(_that.latitude,_that.longitude,_that.updatedAt);case _:
@@ -1374,11 +1374,11 @@ return $default(_that.latitude,_that.longitude,_that.updatedAt);case _:
 @JsonSerializable()
 
 class _GuardeeLocation implements GuardeeLocation {
-  const _GuardeeLocation({this.latitude, this.longitude, this.updatedAt});
+  const _GuardeeLocation({@JsonKey(fromJson: coordinateFromJson) this.latitude, @JsonKey(fromJson: coordinateFromJson) this.longitude, this.updatedAt});
   factory _GuardeeLocation.fromJson(Map<String, dynamic> json) => _$GuardeeLocationFromJson(json);
 
-@override final  double? latitude;
-@override final  double? longitude;
+@override@JsonKey(fromJson: coordinateFromJson) final  double? latitude;
+@override@JsonKey(fromJson: coordinateFromJson) final  double? longitude;
 @override final  DateTime? updatedAt;
 
 /// Create a copy of GuardeeLocation
@@ -1414,7 +1414,7 @@ abstract mixin class _$GuardeeLocationCopyWith<$Res> implements $GuardeeLocation
   factory _$GuardeeLocationCopyWith(_GuardeeLocation value, $Res Function(_GuardeeLocation) _then) = __$GuardeeLocationCopyWithImpl;
 @override @useResult
 $Res call({
- double? latitude, double? longitude, DateTime? updatedAt
+@JsonKey(fromJson: coordinateFromJson) double? latitude,@JsonKey(fromJson: coordinateFromJson) double? longitude, DateTime? updatedAt
 });
 
 

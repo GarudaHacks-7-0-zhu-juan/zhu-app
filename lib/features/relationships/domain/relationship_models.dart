@@ -116,11 +116,21 @@ abstract class GuardeeDetail with _$GuardeeDetail {
 @freezed
 abstract class GuardeeLocation with _$GuardeeLocation {
   const factory GuardeeLocation({
-    double? latitude,
-    double? longitude,
+    @JsonKey(fromJson: coordinateFromJson) double? latitude,
+    @JsonKey(fromJson: coordinateFromJson) double? longitude,
     DateTime? updatedAt,
   }) = _GuardeeLocation;
 
   factory GuardeeLocation.fromJson(Map<String, dynamic> json) =>
       _$GuardeeLocationFromJson(json);
+}
+
+double? coordinateFromJson(Object? value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) {
+    final coordinate = double.tryParse(value);
+    if (coordinate != null) return coordinate;
+  }
+  throw FormatException('Invalid coordinate: $value');
 }
