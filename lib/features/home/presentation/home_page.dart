@@ -128,7 +128,7 @@ class _Header extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('ZHU / SAFETY NETWORK', style: theme.textTheme.technical),
+        Text('ProtectMe / SAFETY NETWORK', style: theme.textTheme.technical),
         const SizedBox(height: AppSpacing.xs),
         Text('Your safety, in view.', style: theme.textTheme.h1),
         const SizedBox(height: AppSpacing.sm),
